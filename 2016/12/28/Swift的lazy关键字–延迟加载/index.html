@@ -1,91 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
+
+<!-- Head tag -->
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!--Description-->
+  
+  <meta name="description" content="Vernon的专栏">
+  
+
+  <!--Author-->
+  
+  <meta name="author" content="VernonVan">
+  
+
+  <!--Open Graph Title-->
+  
+      <meta property="og:title" content="Swift的lazy关键字–延迟加载"/>
+  
+  <!--Open Graph Description-->
+  
+      <meta property="og:description" content="Vernon的专栏" />
+  
+  <!--Open Graph Site Name-->
+  <meta property="og:site_name" content="VernonVan"/>
+  <!--Type page-->
+  
+      <meta property="og:type" content="article" />
+  
+  <!--Page Cover-->
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- Title -->
   
   <title>Swift的lazy关键字–延迟加载 - VernonVan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="定义lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。
-Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。示例如下：
-@property (non">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Swift的lazy关键字–延迟加载">
-<meta property="og:url" content="http://yoursite.com/2016/12/28/Swift的lazy关键字–延迟加载/index.html">
-<meta property="og:site_name" content="VernonVan">
-<meta property="og:description" content="定义lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。
-Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。示例如下：
-@property (non">
-<meta property="og:updated_time" content="2016-12-28T08:45:40.000Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Swift的lazy关键字–延迟加载">
-<meta name="twitter:description" content="定义lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。
-Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。示例如下：
-@property (non">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
-  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+
+  <link rel="shortcut icon" href="https://hexo.io/icon/favicon-96x96.png">
+
+  <!-- Custom CSS/Sass -->
   <link rel="stylesheet" href="/css/style.css">
-  
+
+  <!----------------------------
+  https://github.com/GallenHu/hexo-theme-Daily
+
+ _____            _   _
+|  __ \          (_) | |
+| |  | |   __ _   _  | |  _   _
+| |  | |  / _` | | | | | | | | |
+| |__| | | (_| | | | | | | |_| |
+|_____/   \__,_| |_| |_|  \__, |
+                          __/ |
+                         |___/
+
+    --------------------------->
 
 </head>
 
+
 <body>
-  <div id="container">
-    <header id="header">
-  <div id="header-outer" class="outer">
-    <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
-      <a id="logo" class="logo" href="/"></a>
-      <nav id="main-nav">
+
+  <!-- Nav -->
+  <header class="site-header">
+  <div class="header-inside">
+    <div class="logo">
+      <a href="/" rel="home">
         
-          <a class="main-nav-link" href="/">Home</a>
+        <img src="https://hexo.io/logo.svg" alt="VernonVan" height="60">
         
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-          <a class="main-nav-link" href="/categories">Categories</a>
-        
-          <a class="main-nav-link" href="/tags">Tags</a>
-        
-          <a class="main-nav-link" href="/about">About</a>
-        
-          <a class="main-nav-link" href="/atom.xml">Rss</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-        </div>
-      </nav>
+      </a>
+    </div>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse">
+        <ul class="navbar-nav">
+          
+          
+            <li>
+              <a href="/.">
+                
+                  home
+                
+              </a>
+            </li>
+          
+            <li>
+              <a href="/archives">
+                
+                  archive
+                
+              </a>
+            </li>
+          
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+    </nav>
+    <div class="button-wrap">
+      <button class="menu-toggle">Primary Menu</button>
     </div>
   </div>
 </header>
-    <section id="main" class="outer"><article id="post-Swift的lazy关键字–延迟加载" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      Swift的lazy关键字–延迟加载
-    </h1>
-  
 
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2016/12/28/Swift的lazy关键字–延迟加载/" class="article-date">
-  <time datetime="2016-12-28T08:29:02.000Z" itemprop="datePublished">2016-12-28</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。<br><strong>注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。</strong></p>
+
+  <!-- Main Content -->
+  <div class="content-area">
+  <div class="post">
+    <!-- Post Content -->
+    <div class="container">
+      <article>
+        <!-- Title date & tags -->
+        <div class="post-header">
+          <h1 class="entry-title">
+            Swift的lazy关键字–延迟加载
+            
+          </h1>
+          <p class="posted-on">
+          2016-12-28
+          </p>
+          <div class="tags-links">
+            
+              
+                <a href="/tags/iOS/" rel="tag">
+                  iOS
+                </a>
+              
+                <a href="/tags/Swift/" rel="tag">
+                  Swift
+                </a>
+              
+            
+          </div>
+        </div>
+        <!-- Post Main Content -->
+        <div class="entry-content">
+          <h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。<br><strong>注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。</strong></p>
 <h3 id="Objective-C中的延迟加载"><a href="#Objective-C中的延迟加载" class="headerlink" title="Objective-C中的延迟加载"></a>Objective-C中的延迟加载</h3><p>Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。<br>示例如下：</p>
 <pre><code class="swift">@property (nonatomic, strong) <span class="type">NSArray</span> *names;
 
@@ -145,59 +199,88 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
 <li><a href="https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Properties.html" target="_blank" rel="external">Apple developer</a></li>
 </ol>
 
+        </div>
+      </article>
+    </div>
+    <!-- Comments -->
+    <div class="container">
+      
+<section id="comment">
+  <!-- <h1 class="title">Comments</h1> -->
+
+  
+</section>
+
+
+    </div>
+    <!-- Pre or Next -->
+    <div class="nav-links">
+      
       
     </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Swift/">Swift</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
 
-      </footer>
-    
   </div>
-  
-    
-  
-</article>
-
-
-
-
-<div class="share_addthis">
-  <div class="sharing addthis_toolbox share">
-    <a class="addthis_button_facebook_like"></a>
-    <a class="addthis_button_tweet"></a>
-    <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
-    <a class="addthis_counter addthis_pill_style"></a>
-  </div>
-  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-560c64c35486b3d4" async="async"></script>
 </div>
 
 
-
-
-
-</section>
-    <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2016 VernonVan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+  <!-- Footer -->
+  <!-- Footer-widgets -->
+<div class="footer-widgets">
+  <div class="row inside-wrapper">
+    <div class="col-1-3">
+      <aside>
+        <h1 class="widget-title">关于本站</h1>
+        <div class="custom-widget-content">
+          
+          Vernon的专栏
+        </div>
+      </aside>
+    </div>
+    <div class="col-1-3">
+      <aside>
+        <h1 class="widget-title">Contact</h1>
+        <div class="widget-text">
+          
+            
+              <a href="https://github.com/GallenHu" class="icon icon-github" target="_blank">github</a>
+            
+          
+        </div>
+      </aside>
+    </div>
+    <div class="col-1-3">
+      <aside>
+        <h1 class="widget-title">Search</h1>
+        <div class="widget-text">
+          <form onSubmit="return appDaily.submitSearch('')">
+            <p>
+              <input type="text" placeholder="search..." id="homeSearchInput">
+            </p>
+            <!-- <input type="submit" value="GO"> -->
+          </form>
+        </div>
+      </aside>
     </div>
   </div>
-</footer>
+</div>
+<!-- Footer -->
+<footer class="site-info">
+  <p>
+    <span>VernonVan &copy; 2016</span>
     
-
-<script src="/js/jquery.min.js"></script>
-
-
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+      <span class="split">|</span><span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> with Theme <a href="https://github.com/GallenHu/hexo-theme-Daily" target="_blank">Daily</a></span>
+    
+  </p>
+</footer>
 
 
-<script src="/js/script.js"></script>
-  </div>
+  <!-- After footer scripts -->
+  <!-- scripts -->
+<script src="//cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
+<script src="/js/app.js"></script>
+
+
+
 </body>
+
 </html>
