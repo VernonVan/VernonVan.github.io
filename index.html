@@ -193,6 +193,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives" rel="section">
             
@@ -241,7 +251,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/15/iOS提高UITableView滚动流畅性/">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/29/PPRoundedAvatar-高性能的异步裁剪圆角头像/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Vernon">
@@ -266,8 +276,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/03/15/iOS提高UITableView滚动流畅性/" itemprop="url">
-                  iOS提高UITableView滚动流畅性
+                <a class="post-title-link" href="/2017/03/29/PPRoundedAvatar-高性能的异步裁剪圆角头像/" itemprop="url">
+                  PPRoundedAvatar--高性能的异步裁剪圆角头像
                 </a>
               
             
@@ -283,8 +293,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-15T15:15:46+08:00">
-                2017-03-15
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-29T11:10:09+08:00">
+                2017-03-29
               </time>
             
 
@@ -302,8 +312,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/03/15/iOS提高UITableView滚动流畅性/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/15/iOS提高UITableView滚动流畅性/" itemprop="commentCount"></span>
+                <a href="/2017/03/29/PPRoundedAvatar-高性能的异步裁剪圆角头像/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/29/PPRoundedAvatar-高性能的异步裁剪圆角头像/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -313,7 +323,7 @@
 
           
           
-             <span id="/2017/03/15/iOS提高UITableView滚动流畅性/" class="leancloud_visitors" data-flag-title="iOS提高UITableView滚动流畅性">
+             <span id="/2017/03/29/PPRoundedAvatar-高性能的异步裁剪圆角头像/" class="leancloud_visitors" data-flag-title="PPRoundedAvatar--高性能的异步裁剪圆角头像">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -433,6 +443,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -482,55 +514,17 @@
         
           
             <h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。<br><strong>注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。</strong></p>
-<h3 id="Objective-C中的延迟加载"><a href="#Objective-C中的延迟加载" class="headerlink" title="Objective-C中的延迟加载"></a>Objective-C中的延迟加载</h3><p>Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。<br>示例如下：</p>
-<pre><code class="swift">@property (nonatomic, strong) <span class="type">NSArray</span> *names;
-
-- (<span class="type">NSArray</span> *)names {
-    <span class="keyword">if</span> (!_names) {
-        _names = [[<span class="type">NSArray</span> alloc] <span class="keyword">init</span>];
-        <span class="type">NSLog</span>(@<span class="string">"只在首次访问输出"</span>);
-    }
-    <span class="keyword">return</span> _names;
-}
-</code></pre>
+<h3 id="Objective-C中的延迟加载"><a href="#Objective-C中的延迟加载" class="headerlink" title="Objective-C中的延迟加载"></a>Objective-C中的延迟加载</h3><p>Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。<br>示例如下：<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">@property (nonatomic, strong) <span class="type">NSArray</span> *names;</div><div class="line"></div><div class="line">- (<span class="type">NSArray</span> *)names &#123;</div><div class="line">    <span class="keyword">if</span> (!_names) &#123;</div><div class="line">        _names = [[<span class="type">NSArray</span> alloc] <span class="keyword">init</span>];</div><div class="line">        <span class="type">NSLog</span>(@<span class="string">"只在首次访问输出"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> _names;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>说明：在初始化对象后，_names 是 nil。只有当首次访问 names 属性时 getter 方法会被调用，并检查如果还没有初始化的话，就进行赋值。可以想见，控制台打印的“只在首次访问输出”的确只会输出一次。我们之后再多次访问这个属性的话，因为 _names已经有值，因此将直接返回。<br>分析：getter方法和下划线语法对初学者并不是那么的友好，同时属性以及对应的getter方法空间上隔得比较远，代码逻辑不直观。</p>
-<h3 id="Swift的延迟加载"><a href="#Swift的延迟加载" class="headerlink" title="Swift的延迟加载"></a>Swift的延迟加载</h3><p>Swift中则可以通过<strong>lazy</strong>关键字简单地实现相同功能，比如上述示例代码在Swift中实现的话：</p>
-<pre><code class="swift"><span class="built_in">lazy</span> <span class="keyword">var</span> names: <span class="type">NSArray</span> = {
-    <span class="keyword">let</span> names = <span class="type">NSArray</span>()
-    <span class="built_in">print</span>(<span class="string">"只在首次访问输出"</span>)
-    <span class="keyword">return</span> names
-}()
-</code></pre>
+<h3 id="Swift的延迟加载"><a href="#Swift的延迟加载" class="headerlink" title="Swift的延迟加载"></a>Swift的延迟加载</h3><p>Swift中则可以通过<strong>lazy</strong>关键字简单地实现相同功能，比如上述示例代码在Swift中实现的话：<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">lazy</span> <span class="keyword">var</span> names: <span class="type">NSArray</span> = &#123;</div><div class="line">	<span class="keyword">let</span> names = <span class="type">NSArray</span>()</div><div class="line">	<span class="built_in">print</span>(<span class="string">"只在首次访问输出"</span>)</div><div class="line">	<span class="keyword">return</span> names</div><div class="line">&#125;()</div></pre></td></tr></table></figure></p>
 <p>分析：相比起Objective-C中的实现，现在的lazy是在是简单的多了，而且更加的直观。除了上述直接在属性后面定义闭包调用的方法以外，还可以使用实例方法（func）和类方法（class func）来为lazy属性初始化添加必要的逻辑。</p>
 <h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>延迟加载主要有以下两个使用的场景：</p>
 <ol>
 <li>属性的初始值依赖于其他的属性值，只有其他的属性值有值之后才能得出该属性的值。</li>
 <li>属性的初始值需要大量的计算。</li>
 </ol>
-<h3 id="高级用法"><a href="#高级用法" class="headerlink" title="高级用法"></a>高级用法</h3><p>在Swift标准库中还有一组lazy方法，可以配合map、filter这类接受闭包并进行运行的方法一起，让整个行为变成延时进行的。以下是map函数的用法（示例取自喵神的<a href="http://swifter.tips/lazy/" target="_blank" rel="external">Swifter</a>）:</p>
-<pre><code class="Swift"><span class="keyword">let</span> data = <span class="number">1</span>...<span class="number">3</span>
-<span class="keyword">let</span> result = data.<span class="built_in">lazy</span>.<span class="built_in">map</span> {
-    (i: <span class="type">Int</span>) -&gt; <span class="type">Int</span> <span class="keyword">in</span>
-    <span class="built_in">print</span>(<span class="string">"正在处理 <span class="subst">\(i)</span>"</span>)
-    <span class="keyword">return</span> i * <span class="number">2</span>
-}
-
-<span class="built_in">print</span>(<span class="string">"准备访问结果"</span>)
-<span class="keyword">for</span> i <span class="keyword">in</span> result {
-    <span class="built_in">print</span>(<span class="string">"操作后结果为 <span class="subst">\(i)</span>"</span>)
-}
-
-<span class="built_in">print</span>(<span class="string">"操作完毕"</span>)
-</code></pre>
-<pre><code class="swift"><span class="comment">// 准备访问结果</span>
-<span class="comment">// 正在处理 1</span>
-<span class="comment">// 操作后结果为 2</span>
-<span class="comment">// 正在处理 2</span>
-<span class="comment">// 操作后结果为 4</span>
-<span class="comment">// 正在处理 3</span>
-<span class="comment">// 操作后结果为 6</span>
-<span class="comment">// 操作完毕</span>
-</code></pre>
+<h3 id="高级用法"><a href="#高级用法" class="headerlink" title="高级用法"></a>高级用法</h3><p>在Swift标准库中还有一组lazy方法，可以配合map、filter这类接受闭包并进行运行的方法一起，让整个行为变成延时进行的。以下是map函数的用法（示例取自喵神的<a href="http://swifter.tips/lazy/" target="_blank" rel="external">Swifter</a>）:<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> data = <span class="number">1</span>...<span class="number">3</span></div><div class="line"><span class="keyword">let</span> result = data.<span class="built_in">lazy</span>.<span class="built_in">map</span> &#123;</div><div class="line">    (i: <span class="type">Int</span>) -&gt; <span class="type">Int</span> <span class="keyword">in</span></div><div class="line">    <span class="built_in">print</span>(<span class="string">"正在处理 <span class="subst">\(i)</span>"</span>)</div><div class="line">    <span class="keyword">return</span> i * <span class="number">2</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"准备访问结果"</span>)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> result &#123;</div><div class="line">    <span class="built_in">print</span>(<span class="string">"操作后结果为 <span class="subst">\(i)</span>"</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"操作完毕"</span>)</div></pre></td></tr></table></figure></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 准备访问结果</span></div><div class="line"><span class="comment">// 正在处理 1</span></div><div class="line"><span class="comment">// 操作后结果为 2</span></div><div class="line"><span class="comment">// 正在处理 2</span></div><div class="line"><span class="comment">// 操作后结果为 4</span></div><div class="line"><span class="comment">// 正在处理 3</span></div><div class="line"><span class="comment">// 操作后结果为 6</span></div><div class="line"><span class="comment">// 操作完毕</span></div></pre></td></tr></table></figure>
 <blockquote>
 <p>对于那些不需要完全运行，可能提前退出的情况，使用 lazy 来进行性能优化效果会非常有效。</p>
 </blockquote>
@@ -618,6 +612,13 @@
             </div>
           
 
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
           
 
           
