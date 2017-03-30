@@ -5,7 +5,7 @@ tags:
 - iOS
 - Swift
 categories:
-- ruanpapa -- 技术贴
+- ruanpapa--技术贴
 ---
 ### 定义
 lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。
