@@ -1,5 +1,5 @@
 ---
-title: ruanpapa和又吉君的日常
+title: ruanpapa和又吉君的日常之零
 date: 2017-03-30 13:37:32
 tags:
 categories:
