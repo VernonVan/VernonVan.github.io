@@ -6,7 +6,6 @@ tags:
 - Objective-C
 categories:
 - ruanpapa--技术贴
-- ruanpapa&又吉君的日常
 ---
 
 ## 起因
