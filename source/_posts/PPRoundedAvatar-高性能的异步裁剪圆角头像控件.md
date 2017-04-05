@@ -103,7 +103,7 @@ categories:
 }
 ```
 
-## 圆角头像控件
+### 圆角头像控件
 这里采用 NSOperation + NSOperationQueue 的方式进行多线程处理，在图片、边框等属性的 set 方法里调用 setNeedsLayout 方法刷新布局，同时设置 _isNeedTransform 标记位为 YES，表示需要刷新，可以提高性能。
 ```objective-c
 - (void)setAvatarImage:(UIImage *)avatarImage
