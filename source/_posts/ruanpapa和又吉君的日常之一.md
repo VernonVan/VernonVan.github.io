@@ -18,18 +18,18 @@ categories:
 * “你这边框，这么细，加了和没加有什么区别！”
 * ........  
   ![能怎么办](http://upload-images.jianshu.io/upload_images/5431890-59a692e2f42c5d25.jpg)
-<p align="center"><font color="9E9E9E"><u>能怎么办</u></font></p>
-<br>
+  <p align="center"><font color="9E9E9E"><u>能怎么办</u></font></p>
+  <br>
 
 > #### 万般无奈之下，又吉君开始了“设计之旅”
 > 于是.....  
 > 这张充满了直男癌风格的展示图就可爱了！
-> 
+>
 > ![喏，展示图](http://upload-images.jianshu.io/upload_images/5431890-ebd81b62a0a5ce02.jpg)
 > <p align="center"><font color="9E9E9E"><u>喏，展示图</u></font></p>
-<br>
+> <br>
 > **还有经过多次失败弄出来的图标...**
-> 
+>
 > ![么么扎٩(๑❛ᴗ❛๑)۶](http://upload-images.jianshu.io/upload_images/5431890-26b53c04af1d3859.jpg)
 > <p align="center"><font color="9E9E9E"><u>么么扎٩(๑❛ᴗ❛๑)۶</u></font></p>
 > <br>
@@ -40,6 +40,6 @@ categories:
 - 啊哈哈哈哈哈哈哈哈哈！！！实际上我ruanpapa设计的也挺好看的！但是我就是喜欢我弄的！！！！
 - 我是又吉君，一个集ruanpapa和智慧于一身的大可爱！
 - 嚯嚯嚯嚯嚯嚯嚯！！
-<br>
-<br>
-<p align="right">by：又吉君</p>
+  <br>
+  <br>
+  <p align="right">by：又吉君</p>
