@@ -74,4 +74,4 @@ categories:
 <p align="center"><font color="9E9E9E">长长的夹道</font></p>
 <br>
 
-* 我是又吉君，一个集ruanpapa和好脾气的大可爱！
+* 我是又吉君，一个集ruanpapa和好脾气于一身的大可爱！
