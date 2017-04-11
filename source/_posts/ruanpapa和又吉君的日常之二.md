@@ -16,7 +16,7 @@ categories:
 >
 > ![特别的昵称](http://upload-images.jianshu.io/upload_images/5431890-a5faad624a4c040a.jpg)
 >
-> <p align="center"><font color="9E9E9E">特别的昵称</font></p>
+> <p align="center"><font color="9E9E9E"><u>特别的昵称</u></font></p>
 >
 > <br>
 
@@ -25,7 +25,7 @@ categories:
 
 >![(´･ω･`)](http://upload-images.jianshu.io/upload_images/5431890-82b8059afc595d42.jpg)
 >
-><p align="center"><font color="9E9E9E">(´･ω･`)</font></p>
+><p align="center"><font color="9E9E9E"><u>(´･ω･`)</u></font></p>
 ><br>
 >
 >*  对，就是因为老子出去玩了三天两天半没搭理他……这货无聊得要爆炸！
@@ -56,22 +56,26 @@ categories:
 
 ![不知道哪个巷子里的路灯...](http://upload-images.jianshu.io/upload_images/5431890-0cff0046db87663f.jpg)
 
-<p align="center"><font color="9E9E9E">不知道哪个巷子里的路灯...</font></p>
+<p align="center"><font color="9E9E9E"><u>不知道哪个巷子里的路灯...</u></font></p>
 <br>
 
 ![何园的亭子](http://upload-images.jianshu.io/upload_images/5431890-507ed4d57fa25230.jpg)
 
-<p align="center"><font color="9E9E9E">何园的亭子</font></p>
+<p align="center"><font color="9E9E9E"><u>何园的亭子</u></font></p>
 <br>
 
 ![桃花](http://upload-images.jianshu.io/upload_images/5431890-b79184fa44bc8e33.jpg)
 
-<p align="center"><font color="9E9E9E">桃花</font></p>
+<p align="center"><font color="9E9E9E"><u>桃花</u></font></p>
 <br>
 
 ![长长的夹道](http://upload-images.jianshu.io/upload_images/5431890-298a91a209912a45.jpg)
 
-<p align="center"><font color="9E9E9E">长长的夹道</font></p>
+<p align="center"><font color="9E9E9E"><u>长长的夹道</u></font></p>
 <br>
 
 * 我是又吉君，一个集ruanpapa和好脾气于一身的大可爱！
+
+<br>
+<br>
+<p align="right">by：又吉君</p>

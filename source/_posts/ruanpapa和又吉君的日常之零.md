@@ -44,8 +44,9 @@ categories:
 
 > **未来那么长，请多多指教啊！**
 
-
 ![嘿，旁边的傻papa](http://upload-images.jianshu.io/upload_images/5431890-d5b9a953241a5596.jpg)  
+<p align="center"><font color="9E9E9E"><u>嘿，旁边的傻papa</u></font></p>
+
 <br>
 <br>
 <p align="right">by：又吉君</p>
