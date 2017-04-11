@@ -14,9 +14,7 @@ categories:
  >
  > - ![又吉君的第二次水彩](http://upload-images.jianshu.io/upload_images/5431890-edfdec991f26f35a.jpg)
  >
- >   ​
- >
- >   <p align="center"><font color="9E9E9E"><u>又吉君的第二次水彩</u></font></p>
+ >    <p align="center"><font color="9E9E9E"><u>又吉君的第二次水彩</u></font></p>
  >
  >   <br>
  >
