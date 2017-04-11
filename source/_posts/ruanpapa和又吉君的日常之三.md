@@ -14,13 +14,13 @@ categories:
  >
  > - ![又吉君的第二次水彩](http://upload-images.jianshu.io/upload_images/5431890-edfdec991f26f35a.jpg)
  >
+ >    ​
+ >
  >    <p align="center"><font color="9E9E9E"><u>又吉君的第二次水彩</u></font></p>
  >
- >   <br>
+ >    <br>
  >
- >   ​
- >
- >   <p align="center">（没有纸...拿的素描纸画的....）</p>
+ >    <p align="center">（没有纸...拿的素描纸画的....）</p>
  >
  >   ​
 
@@ -59,7 +59,12 @@ categories:
 
 
 * 我是又吉君，一个集ruanpapa和灵魂画手与一身的大可爱！
+
+  <div style="text-align:center" markdown="1">
+
   ![喵～](http://upload-images.jianshu.io/upload_images/5431890-086ab893f76633bf.jpg)
+
+  </div>
 
 <p align="center"><font color="9E9E9E"><u>喵~</u></font></p>
 
