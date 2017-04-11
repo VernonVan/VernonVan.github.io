@@ -60,11 +60,8 @@ categories:
 
 * 我是又吉君，一个集ruanpapa和灵魂画手与一身的大可爱！
 
-  <div align=center> 
-
   ![喵～](http://upload-images.jianshu.io/upload_images/5431890-086ab893f76633bf.jpg)
 
-  </div>
 
 <p align="center"><font color="9E9E9E"><u>喵~</u></font></p>
 
