@@ -12,7 +12,7 @@ categories:
  >
  > - **骚逼**    的秀一下：
  >
- > - ![又吉君的第二次水彩](http://upload-images.jianshu.io/upload_images/5431890-edfdec991f26f35a.jpg)
+ > ![又吉君的第二次水彩](http://upload-images.jianshu.io/upload_images/5431890-edfdec991f26f35a.jpg)
  >
  >    ​
  >
@@ -58,7 +58,7 @@ categories:
 * papa你要努力成为我这样的灵魂画师噢！！**哈哈哈哈哈啊哈哈哈哈哈哈**
 
 
-* 我是又吉君，一个集ruanpapa和灵魂画手与一身的大可爱！
+* 我是又吉君，一个集ruanpapa和灵魂画手于一身的大可爱！
 
   ![喵～](http://upload-images.jianshu.io/upload_images/5431890-086ab893f76633bf.jpg)
 
