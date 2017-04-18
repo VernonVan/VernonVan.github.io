@@ -6,7 +6,7 @@ categories:
 - ruanpapa&又吉君的日常
 ---
 
-### 万恶之源
+## 万恶之源
 > 又吉君：papa，今晚我不能陪你，我得做个Flash课件......
 >
 > 我：纳尼？？？？？Flash这么out的东西咱别用了嘛，又耗电又难看的
@@ -19,7 +19,7 @@ categories:
 
 
 
-### 假装标题
+## 假装标题
 这任务是接下来了，海口也夸下了。可是一打开Adobe Flash Professional CS6我就懵逼了：这他喵的都是什么鬼啊
 
 ![一脸懵逼](http://upload-images.jianshu.io/upload_images/698554-bb15f7c8352a0e81.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
@@ -44,7 +44,7 @@ categories:
 
 
 
-### 皆大欢喜
+## 皆大欢喜
 事情发展到这里并不能算完，这个逼装的只能算及格水平，算不得一个高质量的逼，于是：
 > 我：拿去吧，以后这么简单的东西早点给我嘛，省的你自己在那里弄那么久，心疼死我了
 >
