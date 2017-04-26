@@ -100,8 +100,7 @@ categories:
 >
 > * 耶！✌️
 
-
-*我是又吉君！ 一个需要提高预算的孩子！！
+* 我是又吉君！ 一个需要提高预算的孩子！！
 
 ![汪～](http://upload-images.jianshu.io/upload_images/5431890-ab475351e7890445.jpg)
 
