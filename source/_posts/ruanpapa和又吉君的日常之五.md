@@ -36,15 +36,17 @@ categories:
 >
 > * 于是我就给他做了一张。
 >
-> * ![_(┐「ε:)_](http://upload-images.jianshu.io/upload_images/5431890-2599e513e3ded9fa.jpg)
+>   ![_(┐「ε:)_](http://upload-images.jianshu.io/upload_images/5431890-2599e513e3ded9fa.jpg)
 >
 >   <p align="center"><font color="9E9E9E"><u>_(┐「ε:)_</u></font></p>
 >
 >   ​
 >
-> * ![我tm有什么办法！！](http://upload-images.jianshu.io/upload_images/5431890-32a5b58070d58a02.jpg)
+>   ![我tm有什么办法！！](http://upload-images.jianshu.io/upload_images/5431890-32a5b58070d58a02.jpg)
 >
 >   <p align="center"><font color="9E9E9E"><u>_我tm有什么办法！！_</u></font></p>
+>
+>   ​
 >
 >   **老子有什么办法！！！！鼠标手绘！！你让我怎么样！！！ಥ_ಥ****
 
@@ -65,13 +67,13 @@ categories:
 > * 我把最喜欢的一支笔弄丢了，于是在淘宝找了半天，就想要一毛一样的，然后papa就很负责任的帮我一本正经的找，由于随机发颜色，所以很苦恼，就一家一家的问可不可以指定颜色....于是，找到一家！！！！
 >   ![嘿嘿嘿](http://upload-images.jianshu.io/upload_images/5431890-405a6aee5bdd0ae8.jpg)
 >
-> * <p align="center"><font color="9E9E9E"><u>_嘿嘿嘿_</u></font></p>
+>   <p align="center"><font color="9E9E9E"><u>_嘿嘿嘿_</u></font></p>
 >
 >   ​
 >
 >   ​
 >
-> * 哈哈哈哈哈哈！说完那句之后，这个淘宝卖家就没再回复一句.....快递也没告诉我发啥....但是我还是买了哈哈哈哈哈哈哈哈哈哈哈
+> * **哈哈哈哈哈哈！说完那句之后，这个淘宝卖家就没再回复一句.....快递也没告诉我发啥....但是我还是买了哈哈哈哈哈哈哈哈哈哈哈**
 
 
 ### “去你妈的六碗饭！”
@@ -80,7 +82,7 @@ categories:
 >
 > * 觉得很好玩，每个人吃了两碗多点，就和papa讲了一下觉得好笑，结果这小讨厌“污蔑我”吃了六碗！！！！！！
 >
-> * ![去你妈的六碗饭](http://upload-images.jianshu.io/upload_images/5431890-abc50c31d245580f.jpg)
+>   ![去你妈的六碗饭](http://upload-images.jianshu.io/upload_images/5431890-abc50c31d245580f.jpg)
 >
 >   <p align="center"><font color="9E9E9E"><u>_去你妈的六碗饭_</u></font></p>
 >
@@ -92,9 +94,9 @@ categories:
 >
 > * **提 高**  了
 >
-> * *提 高
+> * **提 高**
 >
-> * 高**
+> * **高**
 >
 > * 耶！✌️
 
