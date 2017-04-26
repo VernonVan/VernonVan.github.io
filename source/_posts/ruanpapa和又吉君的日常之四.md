@@ -31,11 +31,11 @@ categories:
 
 
 > 又吉君：papa，你看一下main场景的那个按钮为什么没有响应啊，明明跟其他按钮一样的代码，就是没有反应，你知道怎么弄的吧
-> 
+>
 > 我：那当然知道啦，也不看看我是谁！（内心OS：Excuse me？场景是什么鬼Σ(☉▽☉"a 代码？这个还能用代码控制？这么神奇的吗 !!!∑(ﾟДﾟノ)ノ
-> 
+>
 > 又吉君：噢再帮我插一个视频到flash里，谢谢papa~
-> 
+>
 > 我：谢什么谢，这么简单我三下五除二就搞定了，我做出来你亲我一下就行了（内心OS：视频？那不是还要播放暂停音量控制一大堆的咯.....）
 
 
@@ -50,8 +50,8 @@ categories:
 >
 > 又吉君：哎呀！你都做好了吖！好棒啊你，mua~
 > <div align=center> 
-<img src="http://upload-images.jianshu.io/upload_images/698554-9424ee87eb6e498f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"  width=280  alt="迷妹又吉君"/>
-</div>
+> <img src="http://upload-images.jianshu.io/upload_images/698554-9424ee87eb6e498f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"  width=280  alt="迷妹又吉君"/>
+> </div>
 > <p align="center"><font color="9E9E9E"><u>迷妹又吉君</u></font></p>
 > 我：唉，没挑战啊这任务，配不上我的身价啊
 >
