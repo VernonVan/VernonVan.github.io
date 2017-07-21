@@ -1,0 +1,674 @@
+---
+title: [翻译]iOS的Core Text教程：制作一个杂志应用
+date: 2017-07-21 09:58:36
+tags:
+- iOS
+- Swift
+categories:
+- ruanpapa--技术贴
+---
+
+原文链接：https://www.raywenderlich.com/153591/core-text-tutorial-ios-making-magazine-app  
+
+![杂志，Core Text和大脑！](http://upload-images.jianshu.io/upload_images/698554-57c6d4f3c2df1c38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+更新说明：本教程已经由Lyndsey Scott升级为Swift 4和Xcode 9。最初的教程由Marin Todorov所创作。
+
+Core Text是一个底层的文本引擎，当与Core Graphics/Quartz框架配合使用的时候，可以对布局和格式进行细粒度的控制。
+
+随着iOS 7的发布，Apple公司发布了一个名叫Text Kit的高级库，可以用来储存、布局和显示具有各种排版特征的文本。虽然Text Kit在布局文本时不仅强大而且大部分情况下已经足够用了，但是Core Text可以提供更多的控制。例如，如果你想直接使用Quartz的话，那就请用Core Text吧。如果你需要构建你自己的布局引擎的话，Core Text将会帮助你生成[字形(glyphs)并且根据互相之间的关系摆放好这些字形，并具有好的排版的所有特性](https://developer.apple.com/library/content/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Introduction/Introduction.html#//apple_ref/doc/uid/TP40005533)。
+
+本教程将会引导你使用Core Text去创作一本非常简单的杂志应用...给僵尸看的！
+呃，僵尸月刊的读者朋友们已经宽容的答应了，只要你本教程认真使用Core Text的话，就不会吃掉你的大脑了...所以呢，你还是尽快开始吧！
+> 说明：要充分读懂本教程，你首先需要了解iOS开发的基础。如果你是iOS开发的新人的话，你应该首先查看本网站的[其他教程](https://www.raywenderlich.com/category/ios)。
+
+### 开始
+打开Xcode，用Single View Application模板创建一个新的Swift universal project，命名为CoreTextMagazine。
+
+然后，将Core Text框架加到你的工程中：
+1. 单击工程导航器中的工程文件(在左边的导航条上)
+2. 在"General"按钮下，滚动到底部的"Linked Frameworks and Libraries"
+3. 单击"+"按钮然后找到"CoreText"
+4. 选中"CoreText.framework"然后点击"Add"按钮。就这么简单！
+
+现在工程已经配置好了，是时候开始写代码了。
+
+### 添加一个Core Text View
+首先，你将要创建一个自定义的UIView，在这个UIView的draw(_:)方法中将会用到Core Text。
+
+创建一个新的继承于UIView的Cocoa Touch Class file，命名为CTView。打开CTView.swift，然后在 ``` import UIKit ``` 语句下面加上下面的代码：
+```Objective-C
+import CoreText
+```
+
+然后，将这个自定义的view设置为应用的主视图。打开Main.storyboard，在右边打开Utilities菜单，然后在顶部工具条单击Identity Inspector图标。在Interface Builder的左侧菜单中，选中View。现在在Utilities菜单的Class字段中应该写着UIView。在Class字段输入CTView以子类化主视图控制器的视图，然后点击回车键。
+![](http://upload-images.jianshu.io/upload_images/698554-e426ca1cea702142.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+接下来，打开CTView.swift并将被注释掉的draw(_:)方法全都替换成下面的代码：
+```Objective-C
+//1	 	 
+override func draw(_ rect: CGRect) {	 	 
+  // 2	 	 
+  guard let context = UIGraphicsGetCurrentContext() else { return }	 	 
+  // 3	 	 
+  let path = CGMutablePath()	 	 
+  path.addRect(bounds)	 	 
+  // 4
+  let attrString = NSAttributedString(string: "Hello World")
+  // 5
+  let framesetter = CTFramesetterCreateWithAttributedString(attrString as CFAttributedString)
+  // 6
+  let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, attrString.length), path, nil) 
+  // 7
+  CTFrameDraw(frame, context)
+}
+```
+
+让我们一步一步地分析一下代码：
+1. 在视图创建的时候，draw(_:)会自动运行，渲染这个视图的背景图层。
+2. 打开用于绘制的当前图形上下文。
+3. 创建一条用来限定绘图区域的路径，在这个例子中就是整个视图的bounds。
+4. 在Core Text，使用NSAttributedString而不是String或者NSString，保存文本和属性(attributes)。初始化一个"Hello World"的属性字符串。
+5. CTFramesetterCreateWithAttributedString使用提供的属性字符串创建一个CTFramesetter。CTFramesetter会管理你引用的字体和绘图区域。
+6. 通过使CTFramesetterCreateFrame在路径内渲染整个字符串，可以创建一个CTFrame。
+7. CTFrameDraw在给定的上下文中绘制CTFrame。
+   这就是你绘制简单文本所需要做的全部了！Build，运行然后查看结果。
+   ![](http://upload-images.jianshu.io/upload_images/698554-bdfec1f8b8817617.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+噢不...似乎看起来不太对。就像很多的底层API一样，Core Text使用的是Y-flipped坐标系统。更糟糕的是，内容在竖直方向上也翻转了！
+
+添加以下代码到``` guard let context ```语句以修正内容的方向：
+```Objective-C
+// Flip the coordinate system
+context.textMatrix = .identity
+context.translateBy(x: 0, y: bounds.size.height)
+context.scaleBy(x: 1.0, y: -1.0)
+```
+
+这段代码通过应用变换(transformation)到视图的上下文来将内容翻转。
+
+Build然后运行app。别担心状态栏重叠的问题，你接下来会学到怎样通过约束解决这个问题。
+![](http://upload-images.jianshu.io/upload_images/698554-5febf55f8e6bc993.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+祝贺你的第一个Core Text软件！僵尸们很高兴看到你的进步。
+
+### Core Text对象模型
+如果你对CTFramesetter和CTFrame感到有点疑惑也是正常的，也是时候说明一下它们了。:]
+Core Text对象模型如下所示：
+![](http://upload-images.jianshu.io/upload_images/698554-e7418de12cb5ae45.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+当你提供一个NSAttributedString创建一个CTFramesetter对象实例的时候，一个CTTypesetter的实例对象会自动为你创建用以管理你的字体。接下来你会在渲染文本的时候用到这个CTFramesetter去创建一个或者多个frame。
+
+当你创建了一个frame，你可以为这个frame提供文本的一个subrange去渲染这段文本。Core Text会自动为文本的每一行创建一个CTLine，并为每个具有相同格式的字符创建一个CTRun。举个例子，Core Text只会创建一个CTRun用于同一行中的几个红色的单词，创建一个CTRun用于接下来的纯文本，创建一个CTRun用于粗体段落等等。Core Text创建会根据你提供的NSAttributedString中的属性创建CTRun。此外，上面说到的每一个CTRun对象都可以采用不同的属性，也就是说，你可以很好地控制字距、连字、宽度、高度等。
+
+### 深入杂志App！
+下载并解压[the zombie magazine materials](http://www.raywenderlich.com/downloads/zombieMagMaterials.zip)。拖拽解压出来的文件夹到你的Xcode工程中。当弹出对话框时，确保Copy items if needed和Create groups选中。
+
+为了创建这个app，你需要对文本应用各种属性。你将要创建一个用标签设置杂志格式的简单文本标记解析器。
+
+创建一个新的Cocoa Touch Class file，命名为MarkupParser，继承于NSObject。
+
+首先，我们快速看一下zombies.txt。看看它是如何在整个文本中包含括号内的格式化标签的。"img src"标签指向杂志的图片，而"font color/face"标签则确定了文本的颜色和字体。
+
+打开MarkupParser.swift然后将它的内容替换为以下代码：
+```Objective-C
+import UIKit
+import CoreText
+
+class MarkupParser: NSObject {
+  
+  // MARK: - Properties
+  var color: UIColor = .black
+  var fontName: String = "Arial"
+  var attrString: NSMutableAttributedString!
+  var images: [[String: Any]] = []
+
+  // MARK: - Initializers
+  override init() {
+    super.init()
+  }
+  
+  // MARK: - Internal
+  func parseMarkup(_ markup: String) {
+
+  }
+}
+```
+你在这段代码中添加了属性持有字体和文本颜色，设置了它们的初始值。创建了一个变量去持有parseMarkup(_:)生成的属性字符串。还创建了一个数组用来持有定义了尺寸、位置以及从文本中解析出来的图片文件名等信息的键值对。
+
+通常来说，写一个解析器并不是一个轻松的工作，但是本教程所实现的解析器将会非常简易，只提供开放标签的支持，也就意味着一个标签会决定紧随着这个标签的文本的样式，直到找到一个新的标签。这段文本的标记如下所示：
+```
+These are <font color="red">red<font color="black"> and
+<font color="blue">blue <font color="black">words.
+```
+输出如下所示：
+![](http://upload-images.jianshu.io/upload_images/698554-6d55091e685937d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+将以下代码加到 ``` parseMarkup(_:) ``` 方法中：
+```Objective-C
+//1
+attrString = NSMutableAttributedString(string: "")
+//2 
+do {
+  let regex = try NSRegularExpression(pattern: "(.*?)(<[^>]+>|\\Z)",
+                                      options: [.caseInsensitive,
+                                                .dotMatchesLineSeparators])
+  //3
+  let chunks = regex.matches(in: markup, 
+                             options: NSRegularExpression.MatchingOptions(rawValue: 0), 
+                             range: NSRange(location: 0,
+                                            length: markup.characters.count))
+} catch _ {
+}
+```
+1. attrString初始为空，但是最后会包含解析出来的标记。
+2. 这个正则表达式，匹配了紧跟着这些标签的文本块。它就好像在说：“去查看字符串直到你找到一个开头的括号，然后查看字符串直到你找到一个结束的括号（或者文档的末尾）”。
+3. 搜索regex匹配到的整个标记范围，然后生成一个NSTextCheckingResult的数组。
+
+> 想要学习更多有关正则表达式的内容，访问[NSRegularExpression Tutorial](https://www.raywenderlich.com/86205/nsregularexpression-swift-tutorial)吧。
+
+现在你已经解析了所有的文本并将所有格式化的标签都放进了chunks中，你要做的就是遍历chunks数组去生成对应的属性字符串。
+
+但在那之前，你是否留意到matches(in:options:range:)方法是如何接受一个NSRange作为参数的吗？在你应用NSRegularExpression到你的标记String的时候会有大量NSRange到Range的转化。Swift已经成为了我们所有人的好帮手，所以它值得帮助。
+
+还是在MarkupParser.swift中，将下面的extension加到文件的最后面：
+```Objective-C
+// MARK: - String
+extension String {
+  func range(from range: NSRange) -> Range<String.Index>? {
+    guard let from16 = utf16.index(utf16.startIndex,
+                                   offsetBy: range.location,
+                                   limitedBy: utf16.endIndex),
+      let to16 = utf16.index(from16, offsetBy: range.length, limitedBy: utf16.endIndex),
+      let from = String.Index(from16, within: self),
+      let to = String.Index(to16, within: self) else {
+        return nil
+   }
+
+    return from ..< to
+  }
+}
+```
+上面这个函数将以NSRange表示的字符串的起止索引转换为了String.UTF16View.Index格式，即UTF-16字符串中的位置(position)集合，然后将每个String.UTF16View.Index格式转换为String.Index格式。String.Index格式在组合时，会生成Swift的范围格式：Range。只要索引是有效的，这个函数就会返回原始NSRange格式对应的Range格式。
+
+现在是时候回头处理文本和标签数组了。
+![](http://upload-images.jianshu.io/upload_images/698554-2c69a03c16835494.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+在parseMarkup(_:)函数中添加一下代码到 ``` let chunks ``` 到下面(在do循环语句块中)：
+```Objective-C
+let defaultFont: UIFont = .systemFont(ofSize: UIScreen.main.bounds.size.height / 40)
+//1
+for chunk in chunks {  
+  //2
+  guard let markupRange = markup.range(from: chunk.range) else { continue }
+  //3    
+  let parts = markup.substring(with: markupRange).components(separatedBy: "<")
+  //4
+  let font = UIFont(name: fontName, size: UIScreen.main.bounds.size.height / 40) ?? defaultFont       
+  //5
+  let attrs = [NSAttributedStringKey.foregroundColor: color, NSAttributedStringKey.font: font] as [NSAttributedStringKey : Any]
+  let text = NSMutableAttributedString(string: parts[0], attributes: attrs)
+  attrString.append(text)
+}
+```
+1. 循环chunks数组。
+2. 获取当前NSTextCheckingResult的range，展开Range<String.Index>并且只要range存在就继续执行以下的语句块。
+3. 将chunk用"<"分割成几部分。第一部分包含了杂志的文本而第二部分包含了对应的标签(如果标签存在的话)。
+4. 用fontName生成字体，现在的默认字体是"Arial"，并且根据设备屏幕创建了字体的大小。假如fontName不能产生有效的UIFont的话，将默认字体设为当前字体。
+5. 创建字体格式的字典，将其应用于parts[0]以创建属性字符串，然后将该字符串添加到结果字符串后面。
+
+将下面用来处理"font"标签的代码插到attrString.append(text)下面：
+```Objective-C
+// 1
+if parts.count <= 1 {
+  continue
+}
+let tag = parts[1]
+//2
+if tag.hasPrefix("font") {
+  let colorRegex = try NSRegularExpression(pattern: "(?<=color=\")\\w+", 
+                                           options: NSRegularExpression.Options(rawValue: 0))
+  colorRegex.enumerateMatches(in: tag, 
+    options: NSRegularExpression.MatchingOptions(rawValue: 0), 
+    range: NSMakeRange(0, tag.characters.count)) { (match, _, _) in
+      //3
+      if let match = match,
+        let range = tag.range(from: match.range) {
+          let colorSel = NSSelectorFromString(tag.substring(with:range) + "Color")
+          color = UIColor.perform(colorSel).takeRetainedValue() as? UIColor ?? .black
+      }
+  }
+  //5    
+  let faceRegex = try NSRegularExpression(pattern: "(?<=face=\")[^\"]+",
+                                          options: NSRegularExpression.Options(rawValue: 0))
+  faceRegex.enumerateMatches(in: tag, 
+    options: NSRegularExpression.MatchingOptions(rawValue: 0), 
+    range: NSMakeRange(0, tag.characters.count)) { (match, _, _) in
+
+      if let match = match,
+        let range = tag.range(from: match.range) {
+          fontName = tag.substring(with: range)
+      }
+  }
+} //end of font parsing
+```
+1. 如果parts数组元素少于2个，则跳过这个循环语句块。否则的话，将parts的第二部分存为tag。
+2. 如果tag以"font"开始则创建一个正则表达式去匹配字体的"color"值，然后用这个正则去枚举匹配到的tag中的"color"值。在这种情况下，只应该有一个匹配到的颜色值。
+3. 如果enumerateMatches(in:options:range:using:)函数返回标签的一个有效的match和一个有效的range的话，就去搜索出指示值(比如，<font color="red">返回"red")，接着用这个颜色值生成一个UIColor的selector。执行这个selector所返回得到的color(如果存在的话)会赋值到你的类的color属性上，如果返回的color不存在的话，color属性会被赋值为black。
+4. 同样的，创建一个正则表达式去处理文本中字体的"face"值。如果匹配到一个"face"值，则将类的fontName属性设置为匹配的"face"值。
+
+干得漂亮！现在parseMarkup(_:)函数已经可以获取文本中的标记并生成一个对应的NSAttributedString了。
+
+现在也是时候把你的app喂给一些僵尸了！我的意思是，喂一些僵尸给你的app... 也就是说，(开始处理)zombies.txt。
+
+事实上，显示出被赋予的内容才是UIView的职责所在，而不是去加载内容。打开CTView.swift然后将下面代码添加到draw(_:)方法之前：
+```Objective-C
+// MARK: - Properties
+var attrString: NSAttributedString!
+
+// MARK: - Internal
+func importAttrString(_ attrString: NSAttributedString) {
+  self.attrString = attrString
+}
+```
+
+接下来，将 ``` let attrString = NSAttributedString(string: "Hello World") ``` 从draw(_:)函数中删除。
+
+这段代码中你创建了一个实例变量持有属性字符串和一个函数以便app的其他地方可以设置这个属性字符串。
+
+然后，打开ViewController.swift并将以下代码添加到viewDidLoad()中：
+```Objective-C
+// 1
+guard let file = Bundle.main.path(forResource: "zombies", ofType: "txt") else { return }
+  
+do {
+  let text = try String(contentsOfFile: file, encoding: .utf8)
+  // 2
+  let parser = MarkupParser()
+  parser.parseMarkup(text)
+  (view as? CTView)?.importAttrString(parser.attrString)
+} catch _ {
+}
+```
+然后一步步的过一下这段代码：
+1. 从zombie.txt文件中加载文本。
+2. 创建一个新的解析器，传入文本作为参数，然后将返回的属性字符串赋给ViewController的CTView。
+
+Build并且运行这个app！
+![](http://upload-images.jianshu.io/upload_images/698554-a816139b2aed7b2e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+简直太棒了！归功于这50多行解析代码你可以轻松的用文本文件持有你杂志app的内容了。
+
+### 基本的杂志布局
+如果你认为僵尸新闻的每月杂志只能全塞在一个可怜的页面中，那么你就错了！幸运的是，Core Text在文本列布局时相当有用，因为CTFrameGetVisibleStringRange可以告诉给定frame的情况下显示多少文本才是合适的。也就是说，你可以创建一列文本，当这一列塞满文本之后，你可以知道并开始新的一列。
+
+就本app而言，你需要先打印出列，然后集列成页，再集页成文。未免冒犯这些亡灵，所以。。。你还是尽快把把你的CTView改成继承于UIScrollView。
+打开CTView.swift然后将 ``` class CTView ``` 一行改成以下代码：
+```Objective-C
+class CTView: UIScrollView {
+```
+看到了吗，僵尸老爷？现在这个app已经支持永恒不死了！对的，行、滚动以及翻页现在都是可用的了。
+![](http://upload-images.jianshu.io/upload_images/698554-f7c0cd8d0f47a219.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+到现在为止，你已经在draw(_:)方法里创建了framesetter和frame了，不过由于你有很多不同格式的文本列，所以最好还是创建一个独立的实例表征所述的文本列。
+
+创建一个新的名为CTColumnView的Cocoa Touch Class file，继承于UIView。
+打开CTColumnView.swift并添加下列初始代码：
+```Objective-C
+import UIKit
+import CoreText
+
+class CTColumnView: UIView {
+  
+  // MARK: - Properties
+  var ctFrame: CTFrame!
+  
+  // MARK: - Initializers
+  required init(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)!
+  }
+  
+  required init(frame: CGRect, ctframe: CTFrame) {
+    super.init(frame: frame)
+    self.ctFrame = ctframe
+    backgroundColor = .white
+  }
+  
+  // MARK: - Life Cycle
+  override func draw(_ rect: CGRect) {
+    guard let context = UIGraphicsGetCurrentContext() else { return }
+      
+    context.textMatrix = .identity
+    context.translateBy(x: 0, y: bounds.size.height)
+    context.scaleBy(x: 1.0, y: -1.0)
+      
+    CTFrameDraw(ctFrame, context)
+  }
+}
+```
+跟开始在CTView里做的工作一样，这段代码生成了一个CTFrame。自定义的初始化函数init(frame:ctframe:)设置了：
+1. 这个视图的frame。
+2. 在当前上下文中绘制的CTFrame。
+3. 以及将这个视图的背景颜色设置为白色。
+
+接下来，创建一个新的swift文件命名为CTSettings.swift，用来持有你的文本列的设置。
+将CTSettings.swift的内容替换为以下代码：
+```Objective-C
+import UIKit
+import Foundation
+
+class CTSettings {
+  //1
+  // MARK: - Properties
+  let margin: CGFloat = 20
+  var columnsPerPage: CGFloat!
+  var pageRect: CGRect!
+  var columnRect: CGRect!
+  
+  // MARK: - Initializers
+  init() {
+    //2
+    columnsPerPage = UIDevice.current.userInterfaceIdiom == .phone ? 1 : 2
+    //3
+    pageRect = UIScreen.main.bounds.insetBy(dx: margin, dy: margin)
+    //4
+    columnRect = CGRect(x: 0,
+                        y: 0,
+                        width: pageRect.width / columnsPerPage,
+                        height: pageRect.height).insetBy(dx: margin, dy: margin)
+  }
+}
+```
+1. 这些属性将用来确定page的约束(在这个教程中约束默认是20)、在每一个页中文本列的数量、包含文本列的每一页的frame以及每一页中的每一个文本列的frame。
+2. 由于这本杂志的服务对象是拿着iPhone和iPad的僵尸们，iPad上显示两列，iPhone上显示一列，这样的列数对于任意的屏幕尺寸来说都是适宜的。
+3. 用约束的大小计算出来的pageRect去布局页面的边界。
+4. 用每一页的文本列数量划分pageRect的宽度并配合约束去计算出columnRect。
+
+打开CTView.swift，将文件中的内容整个替换成下列代码：
+```Objective-C
+import UIKit
+import CoreText
+
+class CTView: UIScrollView {
+
+  //1
+  func buildFrames(withAttrString attrString: NSAttributedString,
+                   andImages images: [[String: Any]]) {
+    //2
+    isPagingEnabled = true
+    //3
+    let framesetter = CTFramesetterCreateWithAttributedString(attrString as CFAttributedString)
+    //4
+    var pageView = UIView()
+    var textPos = 0
+    var columnIndex: CGFloat = 0
+    var pageIndex: CGFloat = 0
+    let settings = CTSettings()
+    //5
+    while textPos < attrString.length {
+    }
+  }
+}
+```
+1. buildFrames(withAttrString:andImages:)函数会创建并添加CTColumnView到滚动视图。
+2. 运行滚动视图的翻页行为；也就是说，用户不管什么时候停止滚动，滚动视图都能卡到位置使得同一时间只有一个完整的页面在显示。
+3. CTFramesetter framesetter会为创建的每一列CTFrame提供属性字符串。
+4. UIView pageView会作为每个页面文本列对应的子视图的容器；textPos会持续跟踪接下来的文字；columnIndex会持续跟踪当前列；pageIndex会持续跟踪当前页；同时settings能让你访问app的约束尺寸、每页的列、页的frame和列frame的设置等。
+5. 你将要遍历attrString然后逐列布局文本直到当前文本的位置到了最末尾。
+
+是时候开始遍历attrString了。把下列代码加进 ``` while textPos < attrString.length { ``` 里面：
+```Objective-C
+//1
+if columnIndex.truncatingRemainder(dividingBy: settings.columnsPerPage) == 0 {
+  columnIndex = 0
+  pageView = UIView(frame: settings.pageRect.offsetBy(dx: pageIndex * bounds.width, dy: 0))
+  addSubview(pageView)
+  //2
+  pageIndex += 1
+}   
+//3
+let columnXOrigin = pageView.frame.size.width / settings.columnsPerPage
+let columnOffset = columnIndex * columnXOrigin
+let columnFrame = settings.columnRect.offsetBy(dx: columnOffset, dy: 0)
+```
+1. 如果用每页列数划分的列索引等于0，也就能说明这是所在页的第一列，那么就创建新页视图持有这些列。为了设置这些列的frame，需要获取算好约束的setting. pageRect按照当前页面索引乘以屏幕宽度来对其原点计算偏移量。这样才能在翻页滚动视图内部保证杂志每一页都在前一页的右边。
+2. 自增pageIndex。
+3. 通过settings.columnsPerPage将pageView的宽度除以第一列的x原点，将该列乘以列索引以获得列偏移量；然后通过采用标准columnRect并通过columnOffset将其x原点偏移来创建当前列的frame。
+
+接下来把下列代码加到columnFrame初始化方法的下面：
+```Objective-C
+//1   
+let path = CGMutablePath()
+path.addRect(CGRect(origin: .zero, size: columnFrame.size))
+let ctframe = CTFramesetterCreateFrame(framesetter, CFRangeMake(textPos, 0), path, nil)
+//2
+let column = CTColumnView(frame: columnFrame, ctframe: ctframe)
+pageView.addSubview(column)
+//3
+let frameRange = CTFrameGetVisibleStringRange(ctframe)
+textPos += frameRange.length
+//4
+columnIndex += 1
+```
+1. 创建一个CGMutablePath大小的列，然后从textPos开始在合适的范围内渲染足够多的文本到CTFrame中。
+2. 用CGRect类型的columnFrame和CTFrame类型的ctframe创建一个CTColumnView并将这一列加到pageView上。
+3. 用CTFrameGetVisibleStringRange(_:)函数计算用列限制的文本的范围，然后用这个计算出来的范围自增textPos的值。
+4. 在遍历到下一列之前将column的索引值加1。
+
+最后在遍历完成之后设置好滚动视图的size：
+```Objective-C
+contentSize = CGSize(width: CGFloat(pageIndex) * bounds.size.width,
+                     height: bounds.size.height)
+```
+
+通过将内容大小设置为屏幕宽度乘以页数，僵尸先生现在可以滚动杂志到最后了。
+
+打开ViewController.swift，将原先的下列代码：
+```Objective-C
+(view as? CTView)?.importAttrString(parser.attrString)
+```
+替换为下列代码：
+```Objective-C
+(view as? CTView)?.buildFrames(withAttrString: parser.attrString, andImages: parser.images)
+```
+Build并在iPad上运行应用。检查一下双列布局！在页面间左右拖动试试。看起来棒极了！
+![](http://upload-images.jianshu.io/upload_images/698554-b14a1b1e5fe27a9b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+你已经有了按列排列且格式化好的文本了，但是你还忘了图片呢。用Core Text绘制图片并不是那么简单，Core Text毕竟是一个文本处理框架，但是呢在你刚刚创建的标记解析器的帮助之下，添加图片也没有那么糟糕。
+
+### 用Core Text绘制图片
+虽然Core Text不能直接绘制图片，但是作为一个布局引擎，它可以为图片留开空间。通过设置为CTRun的delegate，你可以确定CTRun的ascent空间、decent空间和宽度。就像下面这样：
+![](http://upload-images.jianshu.io/upload_images/698554-2f22c94e5dde428a.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+当Core Text遇到一个设置了CTRunDelegate的CTRun，它就会询问delegate：“我需要留多少空间给这块的数据”。通过在CTRunDelegate中设置这些属性，您可以在文本中给图片留开空位。
+
+首先让(解析器)支持"img"标签。打开MarkupParser.swift然后找到"} //end of font parsing"语句。并将下面代码加到后面：
+```Objective-C
+//1
+else if tag.hasPrefix("img") { 
+      
+  var filename:String = ""
+  let imageRegex = try NSRegularExpression(pattern: "(?<=src=\")[^\"]+",
+                                           options: NSRegularExpression.Options(rawValue: 0))
+  imageRegex.enumerateMatches(in: tag, 
+    options: NSRegularExpression.MatchingOptions(rawValue: 0), 
+    range: NSMakeRange(0, tag.characters.count)) { (match, _, _) in
+
+    if let match = match,
+      let range = tag.range(from: match.range) {
+        filename = tag.substring(with: range)
+    }
+  }
+  //2
+  let settings = CTSettings()
+  var width: CGFloat = settings.columnRect.width
+  var height: CGFloat = 0
+
+  if let image = UIImage(named: filename) {
+    height = width * (image.size.height / image.size.width)
+    // 3
+    if height > settings.columnRect.height - font.lineHeight {
+      height = settings.columnRect.height - font.lineHeight
+      width = height * (image.size.width / image.size.height)
+    }
+  }
+}
+```
+1. 如果tag是以"img"开头的话就用正则去查找图片的"src"值，比如图片的filename。
+2. 设置图片宽度为列的宽度同时在保证图片宽高比的情况下设置图片高度。
+3. 如果图片的高度高过了列的高度就将列的高度设置为图片高度并减少图片的宽度以维持图片的宽高比。
+
+接下来，将下面代码加到紧随 ``` if let image ``` 语句块后面的地方：
+```Objective-C
+//1
+images += [["width": NSNumber(value: Float(width)),
+            "height": NSNumber(value: Float(height)),
+            "filename": filename,
+            "location": NSNumber(value: attrString.length)]]
+//2
+struct RunStruct {
+  let ascent: CGFloat
+  let descent: CGFloat
+  let width: CGFloat
+}
+
+let extentBuffer = UnsafeMutablePointer<RunStruct>.allocate(capacity: 1)
+extentBuffer.initialize(to: RunStruct(ascent: height, descent: 0, width: width))
+//3
+var callbacks = CTRunDelegateCallbacks(version: kCTRunDelegateVersion1, dealloc: { (pointer) in
+}, getAscent: { (pointer) -> CGFloat in
+  let d = pointer.assumingMemoryBound(to: RunStruct.self)
+  return d.pointee.ascent
+}, getDescent: { (pointer) -> CGFloat in
+  let d = pointer.assumingMemoryBound(to: RunStruct.self)
+  return d.pointee.descent
+}, getWidth: { (pointer) -> CGFloat in
+  let d = pointer.assumingMemoryBound(to: RunStruct.self)
+  return d.pointee.width
+})
+//4
+let delegate = CTRunDelegateCreate(&callbacks, extentBuffer)
+//5
+let attrDictionaryDelegate = [(kCTRunDelegateAttributeName as NSAttributedStringKey): (delegate as Any)]              
+attrString.append(NSAttributedString(string: " ", attributes: attrDictionaryDelegate))
+```
+1. 添加包含图片尺寸、文件名和文本位置的字典到images数组中。
+2. 定义RunStruct结构图去持有用来描述空格的属性。然后初始化一个包含RunStruct的指针，这个结构体的ascent等于图片的高度，宽度等于图片的宽度。
+3. 创建一个CTRunDelegateCallbacks返回ascent、decent和宽度。
+4. 用CTRunDelegateCreate生成一个绑定了callbacks和数据的委托实例。
+5. 创建一个包含委托实例的属性字典，然后添加单个空格到attrString末尾，属性字典其实就是用来持有这些占位空格的位置和大小信息的。
+
+现在MarkupParser可以处理"img"标签了，你需要调整CTColumnView和CTView去渲染图片。
+
+打开CTColumnView.swift。把下列用来持有列的图片和图片的frame的代码加到 ``` var ctFrame:CTFrame! ```  语句后面：
+```Objective-C
+var images: [(image: UIImage, frame: CGRect)] = []
+```
+再然后就是把下列代码加到draw(_:)函数的后面：
+```Objective-C
+for imageData in images {
+  if let image = imageData.image.cgImage {
+    let imgBounds = imageData.frame
+    context.draw(image, in: imgBounds)
+  }
+}
+```
+在这段代码中你遍历了每一张图片然后把图片绘制到上下文它正确的frame内。
+
+然后打开CTView.swift并添加下面这个属性到类的顶部：
+```Objective-C
+// MARK: - Properties
+var imageIndex: Int!
+```
+imageIndex会持续追踪当前的图片索引在你绘制CTColumnView时。
+
+接下来，把下面一行代码添加到buildFrames(withAttrString:andImages:)函数上方：
+```Objective-C
+imageIndex = 0
+```
+这标志着images数组的第一个元素。
+
+然后添加下述attachImagesWithFrame(_:ctframe:margin:columnView)函数到buildFrames(withAttrString:andImages:)函数后面：
+```Objective-C
+func attachImagesWithFrame(_ images: [[String: Any]],
+                           ctframe: CTFrame,
+                           margin: CGFloat,
+                           columnView: CTColumnView) {
+  //1
+  let lines = CTFrameGetLines(ctframe) as NSArray
+  //2
+  var origins = [CGPoint](repeating: .zero, count: lines.count)
+  CTFrameGetLineOrigins(ctframe, CFRangeMake(0, 0), &origins)
+  //3
+  var nextImage = images[imageIndex]
+  guard var imgLocation = nextImage["location"] as? Int else {
+    return
+  }
+  //4
+  for lineIndex in 0..<lines.count {
+    let line = lines[lineIndex] as! CTLine
+    //5
+    if let glyphRuns = CTLineGetGlyphRuns(line) as? [CTRun], 
+      let imageFilename = nextImage["filename"] as? String, 
+      let img = UIImage(named: imageFilename)  { 
+        for run in glyphRuns {
+
+        }
+    }
+  }
+}
+```
+1. 获取一个ctframe的CTLine对象的数组。
+2. 用CTFrameGetOrigins去复制ctframe的行初始点坐标到origins数组中。通过设置长度为0的range，CTFrameGetOrigins将知道要遍历整个CTFrame。
+3. 设置nextImage以包含当前图像的属性数据。如果nextImage包含图像的位置，请将其展开并继续；否则，早点返回函数。
+4. 遍历下一行文本。
+5. 如果这一行的字形、文件名和图片文件名都存在的话，则遍历这一行的字形。
+
+然后呢，添加下列代码到字形的for-loop语句块中：
+```Objective-C
+// 1
+let runRange = CTRunGetStringRange(run)    
+if runRange.location > imgLocation || runRange.location + runRange.length <= imgLocation {
+  continue
+}
+//2
+var imgBounds: CGRect = .zero
+var ascent: CGFloat = 0       
+imgBounds.size.width = CGFloat(CTRunGetTypographicBounds(run, CFRangeMake(0, 0), &ascent, nil, nil))
+imgBounds.size.height = ascent
+//3
+let xOffset = CTLineGetOffsetForStringIndex(line, CTRunGetStringRange(run).location, nil)
+imgBounds.origin.x = origins[lineIndex].x + xOffset 
+imgBounds.origin.y = origins[lineIndex].y
+//4
+columnView.images += [(image: img, frame: imgBounds)]
+//5
+imageIndex! += 1
+if imageIndex < images.count {
+  nextImage = images[imageIndex]
+  imgLocation = (nextImage["location"] as AnyObject).intValue
+}
+```
+1. 如果当前字形的范围不包含下一个图像，则跳过循环的其余部分。否则，在此渲染图像。
+2. 使用CTRunGetTypographicBounds计算图像宽度，并将高度设置为ascent。
+3. 用CTLineGetOffsetForStringIndex获取线的x偏移，然后将其添加到imgBounds的起点坐标。
+4. 将图像及其frame添加到当前的CTColumnView。
+5. 增加图像索引。如果images[imageIndex]是一个图片，则更新nextImage和imgLocation，以便它们引用下一个图像。
+   ![](http://upload-images.jianshu.io/upload_images/698554-b00481e7f05f0bce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+好了！干得漂亮！基本完成，还剩下最后一步。
+
+在buildFrames(withAttrString:andImages:)内部的pageView.addSubview(column)上面添加以下代码用以附加图像(如果图像存在的话)：
+```Objective-C
+if images.count > imageIndex {
+  attachImagesWithFrame(images, ctframe: ctframe, margin: settings.margin, columnView: column)
+}
+```
+Build并且运行到iPhone和iPad上：
+![](http://upload-images.jianshu.io/upload_images/698554-9a01dbec1c6ea94d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+恭喜你！因为感激你所做的这些辛苦的工作，僵尸先生决定不吃你的大脑了！
+
+### 何去何从
+在[这里](https://koenig-media.raywenderlich.com/uploads/2017/06/CoreTextMagazine-2.zip)查看完整的项目。
+
+正如介绍中所述，Text Kit通常可以替代Core Text；所以尝试用Text Kit编写同一个教程吧，比较一下两者有什么不同。也就是说，这堂Core Text课程不会白学！
+Text Kit提供免费桥接(toll free bridging)到Core Text，因此你可以根据你的需要轻松地在框架之间进行转换。
+
+有任何问题，意见或建议？加入论坛讨论吧！
