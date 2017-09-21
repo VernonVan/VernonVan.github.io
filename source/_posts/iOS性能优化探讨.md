@@ -1,7 +1,11 @@
 ---
 title: iOS性能优化探讨
 date: 2017-09-20 11:11:06
-tags: ruanpapa--技术贴
+tags: 
+- iOS
+- 性能优化
+categories:
+- ruanpapa--技术贴
 ---
 
 
