@@ -95,7 +95,7 @@
 上周，在我读完 @nickoneill 写的一篇优秀的博文《为缓慢的Swift编译时间提速》后，我发现用一个不同的角度去审视 Swift 代码并不是很难的一件事。
 可以被认为是简洁的一行代码现在引发了一个新的问题 – 是否应该把这行代码重构成对应的9行代码以让编译器更容易工作（看看接下来要讲的关于空合运算符">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-be809654f87b2336.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-10-24T08:20:56.484Z">
+<meta property="og:updated_time" content="2017-10-24T08:30:42.630Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="(翻译)关于Swift的编译时间优化">
 <meta name="twitter:description" content="原文链接：Regarding Swift build time optimizations
@@ -384,7 +384,7 @@
 <p>对我来说，最初的目的就是找到并修复最耗时的地方，但我现在的想法是让它经历更多的迭代过程。这样的话我就不仅可以让代码编译更有效率，还可以防止第一次进入项目的耗时。</p>
 <h4 id="更加惊喜的是"><a href="#更加惊喜的是" class="headerlink" title="更加惊喜的是"></a>更加惊喜的是</h4><p>我经常在多个 Git 分支间跳来跳去，等待一个缓慢的项目编译完成往往浪费了大量的时间。我想了好长一段时间为什么我的一个宠物项目会编译地这么缓慢（大概2万行 Swift 代码）。</p>
 <p>在我学习了究竟是原因导致的这件事之后，我不得不承认我的确很吃惊，一行代码就需要几秒钟来编译。</p>
-<p>让我们一起看看几个例子。</p>
+<p>让我们看看几个例子。</p>
 <h4 id="空合操作符"><a href="#空合操作符" class="headerlink" title="空合操作符"></a>空合操作符</h4><p>编译器是很不喜欢这里的第一种方式的。在展开下面两处简写的代码之后，编译时间减少了99.4%。</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 5238.3ms</span></div><div class="line"><span class="keyword">return</span> <span class="type">CGSize</span>(width: size.width + (rightView?.bounds.width ?? <span class="number">0</span>) + (leftView?.bounds.width ?? <span class="number">0</span>) + <span class="number">22</span>, height: bounds.height)</div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 32.4ms</span></div><div class="line"><span class="keyword">var</span> padding: <span class="type">CGFloat</span> = <span class="number">22</span></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> rightView = rightView &#123;</div><div class="line">    padding += rightView.bounds.width</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> leftView = leftView &#123;</div><div class="line">    padding += leftView.bounds.width</div><div class="line">&#125;</div><div class="line"><span class="keyword">return</span> <span class="type">CGSizeMake</span>(size.width + padding, bounds.height)</div></pre></td></tr></table></figure>
 <h4 id="ArrayOfStuff-Stuff"><a href="#ArrayOfStuff-Stuff" class="headerlink" title="ArrayOfStuff + [Stuff]"></a>ArrayOfStuff + [Stuff]</h4><p>这个看起来像下面这样：</p>
