@@ -1,0 +1,857 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS,翻译," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="原文链接：Regarding Swift build time optimizations
+上周，在我读完 @nickoneill 写的一篇优秀的博文《为缓慢的Swift编译时间提速》后，我发现用一个不同的角度去审视 Swift 代码并不是很难的一件事。
+可以被认为是简洁的一行代码现在引发了一个新的问题 – 是否应该把这行代码重构成对应的9行代码以让编译器更容易工作（看看接下来要讲的关于空合运算符">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(翻译)关于Swift的编译时间优化">
+<meta property="og:url" content="http://yoursite.com/2017/10/22/翻译关于Swift的编译时间优化/index.html">
+<meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
+<meta property="og:description" content="原文链接：Regarding Swift build time optimizations
+上周，在我读完 @nickoneill 写的一篇优秀的博文《为缓慢的Swift编译时间提速》后，我发现用一个不同的角度去审视 Swift 代码并不是很难的一件事。
+可以被认为是简洁的一行代码现在引发了一个新的问题 – 是否应该把这行代码重构成对应的9行代码以让编译器更容易工作（看看接下来要讲的关于空合运算符">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-be809654f87b2336.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-10-24T08:20:56.484Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(翻译)关于Swift的编译时间优化">
+<meta name="twitter:description" content="原文链接：Regarding Swift build time optimizations
+上周，在我读完 @nickoneill 写的一篇优秀的博文《为缓慢的Swift编译时间提速》后，我发现用一个不同的角度去审视 Swift 代码并不是很难的一件事。
+可以被认为是简洁的一行代码现在引发了一个新的问题 – 是否应该把这行代码重构成对应的9行代码以让编译器更容易工作（看看接下来要讲的关于空合运算符">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/698554-be809654f87b2336.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/22/翻译关于Swift的编译时间优化/"/>
+
+
+
+
+
+  <title> (翻译)关于Swift的编译时间优化 | ruanpapa和又吉君写字的地方 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">ruanpapa和又吉君写字的地方</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/22/翻译关于Swift的编译时间优化/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="ruanpapa & 又吉君">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                (翻译)关于Swift的编译时间优化
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-22T21:39:50+08:00">
+                2017-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
+                    <span itemprop="name">ruanpapa--技术贴</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/10/22/翻译关于Swift的编译时间优化/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/10/22/翻译关于Swift的编译时间优化/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/10/22/翻译关于Swift的编译时间优化/" class="leancloud_visitors" data-flag-title="(翻译)关于Swift的编译时间优化">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>原文链接：<a href="https://medium.com/@RobertGummesson/regarding-swift-build-time-optimizations-fc92cdd91e31" target="_blank" rel="external">Regarding Swift build time optimizations</a></p>
+<p>上周，在我读完 <a href="https://medium.com/@nickoneill" target="_blank" rel="external">@nickoneill</a> 写的一篇优秀的博文<a href="https://medium.com/swift-programming/speeding-up-slow-swift-build-times-922feeba5780#.k0pngnkns" target="_blank" rel="external">《为缓慢的Swift编译时间提速》</a>后，我发现用一个不同的角度去审视 Swift 代码并不是很难的一件事。</p>
+<p>可以被认为是简洁的一行代码现在引发了一个新的问题 – 是否应该把这行代码重构成对应的9行代码以让编译器更容易工作（看看接下来要讲的关于空合运算符(nil coalescing operator)的示例）？到底哪个才是更重要的，简洁的代码还是对编译器友好的代码？这取决于项目的大小和开发者的想法。</p>
+<h4 id="慢着。。。这里有一个-Xcode-插件"><a href="#慢着。。。这里有一个-Xcode-插件" class="headerlink" title="慢着。。。这里有一个 Xcode 插件"></a>慢着。。。这里有一个 Xcode 插件</h4><p>在展示具体的例子之前，我先想到就是手动查看日志是一件非常耗时的事情。有人提出了用终端命令可以让这件事情变得比较容易，但是我更进一步，把这个用 <a href="https://github.com/RobertGummesson/BuildTimeAnalyzer-for-Xcode" target="_blank" rel="external">Xcode 插件</a> 给实现出来了。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/698554-be809654f87b2336.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Xcode插件.png"></p>
+<p>对我来说，最初的目的就是找到并修复最耗时的地方，但我现在的想法是让它经历更多的迭代过程。这样的话我就不仅可以让代码编译更有效率，还可以防止第一次进入项目的耗时。</p>
+<h4 id="更加惊喜的是"><a href="#更加惊喜的是" class="headerlink" title="更加惊喜的是"></a>更加惊喜的是</h4><p>我经常在多个 Git 分支间跳来跳去，等待一个缓慢的项目编译完成往往浪费了大量的时间。我想了好长一段时间为什么我的一个宠物项目会编译地这么缓慢（大概2万行 Swift 代码）。</p>
+<p>在我学习了究竟是原因导致的这件事之后，我不得不承认我的确很吃惊，一行代码就需要几秒钟来编译。</p>
+<p>让我们一起看看几个例子。</p>
+<h4 id="空合操作符"><a href="#空合操作符" class="headerlink" title="空合操作符"></a>空合操作符</h4><p>编译器是很不喜欢这里的第一种方式的。在展开下面两处简写的代码之后，编译时间减少了99.4%。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 5238.3ms</span></div><div class="line"><span class="keyword">return</span> <span class="type">CGSize</span>(width: size.width + (rightView?.bounds.width ?? <span class="number">0</span>) + (leftView?.bounds.width ?? <span class="number">0</span>) + <span class="number">22</span>, height: bounds.height)</div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 32.4ms</span></div><div class="line"><span class="keyword">var</span> padding: <span class="type">CGFloat</span> = <span class="number">22</span></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> rightView = rightView &#123;</div><div class="line">    padding += rightView.bounds.width</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> leftView = leftView &#123;</div><div class="line">    padding += leftView.bounds.width</div><div class="line">&#125;</div><div class="line"><span class="keyword">return</span> <span class="type">CGSizeMake</span>(size.width + padding, bounds.height)</div></pre></td></tr></table></figure>
+<h4 id="ArrayOfStuff-Stuff"><a href="#ArrayOfStuff-Stuff" class="headerlink" title="ArrayOfStuff + [Stuff]"></a>ArrayOfStuff + [Stuff]</h4><p>这个看起来像下面这样：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> <span class="type">ArrayOfStuff</span> + [<span class="type">Stuff</span>]</div><div class="line"><span class="comment">// 而不是</span></div><div class="line"><span class="type">ArrayOfStuff</span>.append(stuff)</div><div class="line"><span class="keyword">return</span> <span class="type">ArrayOfStuff</span></div></pre></td></tr></table></figure>
+<p>我经常这样做，每次都会对所需的编译时间产生影响。下面是最差的一个，这里的编译时间减少了97.9％。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 1250.3ms</span></div><div class="line"><span class="keyword">let</span> systemOptions = [ <span class="number">7</span>, <span class="number">14</span>, <span class="number">30</span>, -<span class="number">1</span> ]</div><div class="line"><span class="keyword">let</span> systemNames = (<span class="number">0</span>...<span class="number">2</span>).<span class="built_in">map</span>&#123; <span class="type">String</span>(format: localizedFormat, systemOptions[$<span class="number">0</span>]) &#125; + [<span class="type">NSLocalizedString</span>(<span class="string">"everything"</span>, comment: <span class="string">""</span>)]</div><div class="line"><span class="comment">// 一些中间的代码</span></div><div class="line">labelNames = <span class="type">Array</span>(systemNames[<span class="number">0</span>..&lt;<span class="built_in">count</span>]) + [systemNames.last!]</div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 25.5ms</span></div><div class="line"><span class="keyword">let</span> systemOptions = [ <span class="number">7</span>, <span class="number">14</span>, <span class="number">30</span>, -<span class="number">1</span> ]</div><div class="line"><span class="keyword">var</span> systemNames = systemOptions.<span class="built_in">dropLast</span>().<span class="built_in">map</span>&#123; <span class="type">String</span>(format: localizedFormat, $<span class="number">0</span>) &#125;</div><div class="line">systemNames.append(<span class="type">NSLocalizedString</span>(<span class="string">"everything"</span>, comment: <span class="string">""</span>))</div><div class="line"><span class="comment">// 一些中间的代码</span></div><div class="line">labelNames = <span class="type">Array</span>(systemNames[<span class="number">0</span>..&lt;<span class="built_in">count</span>])</div><div class="line">labelNames.append(systemNames.last!)</div></pre></td></tr></table></figure>
+<h4 id="三元运算符"><a href="#三元运算符" class="headerlink" title="三元运算符"></a>三元运算符</h4><p>仅仅只是把三元运算符替换成 if-else 语句，就让编译时间减少了92.9%。如果将 map 换成 for 循环，就又能减少75%（但是那样的话我的眼睛可就受不了了）。😉</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 239.0ms</span></div><div class="line"><span class="keyword">let</span> labelNames = type == <span class="number">0</span> ? (<span class="number">1</span>...<span class="number">5</span>).<span class="built_in">map</span>&#123;type0ToString($<span class="number">0</span>)&#125; : (<span class="number">0</span>...<span class="number">2</span>).<span class="built_in">map</span>&#123;type1ToString($<span class="number">0</span>)&#125;</div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 16.9ms</span></div><div class="line"><span class="keyword">var</span> labelNames: [<span class="type">String</span>]</div><div class="line"><span class="keyword">if</span> type == <span class="number">0</span> &#123;</div><div class="line">    labelNames = (<span class="number">1</span>...<span class="number">5</span>).<span class="built_in">map</span>&#123;type0ToString($<span class="number">0</span>)&#125;</div><div class="line">&#125; <span class="keyword">else</span> &#123;</div><div class="line">    labelNames = (<span class="number">0</span>...<span class="number">2</span>).<span class="built_in">map</span>&#123;type1ToString($<span class="number">0</span>)&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="转换-CGFloat-到-CGFloat"><a href="#转换-CGFloat-到-CGFloat" class="headerlink" title="转换 CGFloat 到 CGFloat"></a>转换 CGFloat 到 CGFloat</h4><p>没听懂我在说什么？其实下面例子中值已经是 CGFloat 了，并且有些括号是多余的。在清理完这些冗余之后，编译时间减少了99.9%。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 3431.7 ms</span></div><div class="line"><span class="keyword">return</span> <span class="type">CGFloat</span>(<span class="type">M_PI</span>) * (<span class="type">CGFloat</span>((hour + hourDelta + <span class="type">CGFloat</span>(minute + minuteDelta) / <span class="number">60</span>) * <span class="number">5</span>) - <span class="number">15</span>) * unit / <span class="number">180</span></div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 3.0ms</span></div><div class="line"><span class="keyword">return</span> <span class="type">CGFloat</span>(<span class="type">M_PI</span>) * ((hour + hourDelta + (minute + minuteDelta) / <span class="number">60</span>) * <span class="number">5</span> - <span class="number">15</span>) * unit / <span class="number">180</span></div></pre></td></tr></table></figure>
+<h4 id="Round"><a href="#Round" class="headerlink" title="Round()"></a>Round()</h4><p>下面是一个很奇怪的例子，下面的例子中变量是一个局部变量与实例变量的混合。这个问题似乎不是出在四舍五入本身，而是在于结合代码的方法。去掉四舍五入的方法大概能减少 <strong>97.6%</strong> 的构建时间。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 1433.7ms</span></div><div class="line"><span class="keyword">let</span> expansion = a — b — <span class="built_in">c</span> + round(d * <span class="number">0.66</span>) + e</div><div class="line"><span class="comment">// 编译时间: 34.7ms</span></div><div class="line"><span class="keyword">let</span> expansion = a — b — <span class="built_in">c</span> + d * <span class="number">0.66</span> + e</div></pre></td></tr></table></figure>
+<p>注意：以上所有测试都在MacBool Air(13英寸，2013年中)上进行。</p>
+<h4 id="尝试一下吧"><a href="#尝试一下吧" class="headerlink" title="尝试一下吧"></a>尝试一下吧</h4><p>不管你是否面临过编译时间太长的问题，编写对编译器友好的代码都是非常有用的。我确信你会在其中找到一些惊喜。作为参考，这里有完整的代码，我的工程中可以5秒内完成编译…</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> UIKit</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">CMExpandingTextField</span>: <span class="title">UITextField</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">textFieldEditingChanged</span><span class="params">()</span></span> &#123;</div><div class="line">        invalidateIntrinsicContentSize()</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">intrinsicContentSize</span><span class="params">()</span></span> -&gt; <span class="type">CGSize</span> &#123;</div><div class="line">        <span class="keyword">if</span> isFirstResponder(), <span class="keyword">let</span> text = text &#123;</div><div class="line">            <span class="keyword">let</span> size = text.sizeWithAttributes(typingAttributes)</div><div class="line">            <span class="keyword">return</span> <span class="type">CGSize</span>(width: size.width + (rightView?.bounds.width ?? <span class="number">0</span>) + (leftView?.bounds.width ?? <span class="number">0</span>) + <span class="number">22</span>, height: bounds.height)</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.intrinsicContentSize()</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/翻译/" rel="tag"># 翻译</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/12/响应式编程与MVVM架构--理论篇/" rel="next" title="响应式编程与MVVM架构—理论篇">
+                <i class="fa fa-chevron-left"></i> 响应式编程与MVVM架构—理论篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/10/22/翻译关于Swift的编译时间优化/"
+           data-title="(翻译)关于Swift的编译时间优化" data-url="http://yoursite.com/2017/10/22/翻译关于Swift的编译时间优化/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="ruanpapa & 又吉君" />
+          <p class="site-author-name" itemprop="name">ruanpapa & 又吉君</p>
+          <p class="site-description motion-element" itemprop="description">ruanpapa和又吉君写字的地方</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/VernonVan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#慢着。。。这里有一个-Xcode-插件"><span class="nav-number">1.</span> <span class="nav-text">慢着。。。这里有一个 Xcode 插件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#更加惊喜的是"><span class="nav-number">2.</span> <span class="nav-text">更加惊喜的是</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#空合操作符"><span class="nav-number">3.</span> <span class="nav-text">空合操作符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ArrayOfStuff-Stuff"><span class="nav-number">4.</span> <span class="nav-text">ArrayOfStuff + [Stuff]</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三元运算符"><span class="nav-number">5.</span> <span class="nav-text">三元运算符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#转换-CGFloat-到-CGFloat"><span class="nav-number">6.</span> <span class="nav-text">转换 CGFloat 到 CGFloat</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Round"><span class="nav-number">7.</span> <span class="nav-text">Round()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#尝试一下吧"><span class="nav-number">8.</span> <span class="nav-text">尝试一下吧</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruanpapa & 又吉君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"vernonvan"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fRSRDUvIyCVcsgLOHArGl58q-gzGzoHsz", "0mGpmjuTsGuu9JEKGaU6YX9j");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

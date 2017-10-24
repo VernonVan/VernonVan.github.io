@@ -251,7 +251,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/17/响应式编程与MVVM架构--实践篇/">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/22/翻译关于Swift的编译时间优化/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="ruanpapa & 又吉君">
@@ -276,8 +276,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/10/17/响应式编程与MVVM架构--实践篇/" itemprop="url">
-                  响应式编程与MVVM架构--实践篇
+                <a class="post-title-link" href="/2017/10/22/翻译关于Swift的编译时间优化/" itemprop="url">
+                  (翻译)关于Swift的编译时间优化
                 </a>
               
             
@@ -293,8 +293,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-17T22:04:29+08:00">
-                2017-10-17
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-22T21:39:50+08:00">
+                2017-10-22
               </time>
             
 
@@ -334,8 +334,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/10/17/响应式编程与MVVM架构--实践篇/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/10/17/响应式编程与MVVM架构--实践篇/" itemprop="commentCount"></span>
+                <a href="/2017/10/22/翻译关于Swift的编译时间优化/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/10/22/翻译关于Swift的编译时间优化/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -345,7 +345,7 @@
 
           
           
-             <span id="/2017/10/17/响应式编程与MVVM架构--实践篇/" class="leancloud_visitors" data-flag-title="响应式编程与MVVM架构--实践篇">
+             <span id="/2017/10/22/翻译关于Swift的编译时间优化/" class="leancloud_visitors" data-flag-title="(翻译)关于Swift的编译时间优化">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -374,35 +374,31 @@
       
         
           
-            <p><a href="http://www.jianshu.com/p/2c207dd0669e" target="_blank" rel="external">上一篇</a>从讲解了MVVM的理论知识，这一篇会举几个实际应用中的例子，验证提到的MVVM的几个优势，强化记忆。</p>
-<h2 id="实例一：RAC简单实践"><a href="#实例一：RAC简单实践" class="headerlink" title="实例一：RAC简单实践"></a>实例一：RAC简单实践</h2><p>界面上放置一个UITextField</p>
-<ol>
-<li><p>现在想要在输入框上的值改变的时候都能得到通知，拿到输入框上的值，如下图的效果，应该怎么做？</p>
-<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/RAC简单实践1.jpg" alt="RAC简单实践1"></p>
-<p>按照<a href="http://www.jianshu.com/p/2c207dd0669e" target="_blank" rel="external">理论篇</a>中响应式编程一节的比喻，输入框就像一个不断往外出”玻璃球”的水龙头，现在我们对这个水龙头的变化是感兴趣的。那么就在这个水龙头上套一根水管，成为接收者(subscriber)，代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[self.textField.rac_textSignal subscribeNext:^(id x) &#123;</div><div class="line">        NSLog(@&quot;%@&quot;, x);</div><div class="line">&#125;];</div></pre></td></tr></table></figure>
-<p>下面解释一下：</p>
-<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/简单实践图示1.png" alt="简单实践图示1"></p>
-<ul>
-<li><p>rac_textSignal：就是给输入框套上水管，在RAC的概念里，叫做注册成为接收者。</p>
-</li>
-<li><p>subscribeNext：则会在每次”玻璃球”通过时回调，从玻璃球中就可以得到输入框中的值了。</p>
-<p>​</p>
-</li>
-</ul>
-</li>
-</ol>
-<ol>
-<li><p>还是刚刚的输入框，但是只要输入框上的字超过3个字符，并且最终打印出来的是<strong>字符个数</strong> ，如下图的效果，应该怎么做？</p>
-<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/RAC简单实践2.png" alt="RAC简单实践2"></p>
-<p>先将每次传来的字符串映射(map)为对应的长度值，然后筛选出大于3的长度值通过，最后打印。代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[[[self.textField.rac_textSignal</div><div class="line">       map:^id(NSString *text) &#123;</div><div class="line">           return @(text.length);</div><div class="line">       &#125;]</div><div class="line">       filter:^BOOL(NSNumber *length) &#123;</div><div class="line">           return length.integerValue &gt; 3;</div><div class="line">       &#125;]</div><div class="line">       subscribeNext:^(NSNumber *length) &#123;</div><div class="line">           NSLog(@&quot;字符串长度：%ld&quot;, (long)length.integerValue);</div><div class="line">       &#125;];</div></pre></td></tr></table></figure>
-<p>帮助理解代码的图示如下：</p>
-<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/简单实践图示2.png" alt="简单实践图示2"></p>
-</li>
-</ol>
-<p>注：RAC为应用中发生的不同事件流提供了一个标准接口，在RAC术语中这个叫做信号(signal), 由RACSignal类表示。这样就可以跟上图一样，map、filter、subscribeNext这些函数可以一个接一个套下去，就像一条水管。RACSignal的每个操作都会返回一个RACSignal，在术语上叫做连贯接口(fluent interface)，这样实现就可以直接构建管道，而不用每一步都使用本地变量。</p>
-<h2 id="实例二：登录界面"><a href="#实例二：登录界面" class="headerlink" title="实例二：登录界面"></a>实例二：登录界面</h2><h2 id="实例三：简易的ViewModel"><a href="#实例三：简易的ViewModel" class="headerlink" title="实例三：简易的ViewModel"></a>实例三：简易的ViewModel</h2><h2 id="实例四：统一的消息传递机制"><a href="#实例四：统一的消息传递机制" class="headerlink" title="实例四：统一的消息传递机制"></a>实例四：统一的消息传递机制</h2>
+            <p>原文链接：<a href="https://medium.com/@RobertGummesson/regarding-swift-build-time-optimizations-fc92cdd91e31" target="_blank" rel="external">Regarding Swift build time optimizations</a></p>
+<p>上周，在我读完 <a href="https://medium.com/@nickoneill" target="_blank" rel="external">@nickoneill</a> 写的一篇优秀的博文<a href="https://medium.com/swift-programming/speeding-up-slow-swift-build-times-922feeba5780#.k0pngnkns" target="_blank" rel="external">《为缓慢的Swift编译时间提速》</a>后，我发现用一个不同的角度去审视 Swift 代码并不是很难的一件事。</p>
+<p>可以被认为是简洁的一行代码现在引发了一个新的问题 – 是否应该把这行代码重构成对应的9行代码以让编译器更容易工作（看看接下来要讲的关于空合运算符(nil coalescing operator)的示例）？到底哪个才是更重要的，简洁的代码还是对编译器友好的代码？这取决于项目的大小和开发者的想法。</p>
+<h4 id="慢着。。。这里有一个-Xcode-插件"><a href="#慢着。。。这里有一个-Xcode-插件" class="headerlink" title="慢着。。。这里有一个 Xcode 插件"></a>慢着。。。这里有一个 Xcode 插件</h4><p>在展示具体的例子之前，我先想到就是手动查看日志是一件非常耗时的事情。有人提出了用终端命令可以让这件事情变得比较容易，但是我更进一步，把这个用 <a href="https://github.com/RobertGummesson/BuildTimeAnalyzer-for-Xcode" target="_blank" rel="external">Xcode 插件</a> 给实现出来了。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/698554-be809654f87b2336.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Xcode插件.png"></p>
+<p>对我来说，最初的目的就是找到并修复最耗时的地方，但我现在的想法是让它经历更多的迭代过程。这样的话我就不仅可以让代码编译更有效率，还可以防止第一次进入项目的耗时。</p>
+<h4 id="更加惊喜的是"><a href="#更加惊喜的是" class="headerlink" title="更加惊喜的是"></a>更加惊喜的是</h4><p>我经常在多个 Git 分支间跳来跳去，等待一个缓慢的项目编译完成往往浪费了大量的时间。我想了好长一段时间为什么我的一个宠物项目会编译地这么缓慢（大概2万行 Swift 代码）。</p>
+<p>在我学习了究竟是原因导致的这件事之后，我不得不承认我的确很吃惊，一行代码就需要几秒钟来编译。</p>
+<p>让我们一起看看几个例子。</p>
+<h4 id="空合操作符"><a href="#空合操作符" class="headerlink" title="空合操作符"></a>空合操作符</h4><p>编译器是很不喜欢这里的第一种方式的。在展开下面两处简写的代码之后，编译时间减少了99.4%。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 5238.3ms</span></div><div class="line"><span class="keyword">return</span> <span class="type">CGSize</span>(width: size.width + (rightView?.bounds.width ?? <span class="number">0</span>) + (leftView?.bounds.width ?? <span class="number">0</span>) + <span class="number">22</span>, height: bounds.height)</div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 32.4ms</span></div><div class="line"><span class="keyword">var</span> padding: <span class="type">CGFloat</span> = <span class="number">22</span></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> rightView = rightView &#123;</div><div class="line">    padding += rightView.bounds.width</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">if</span> <span class="keyword">let</span> leftView = leftView &#123;</div><div class="line">    padding += leftView.bounds.width</div><div class="line">&#125;</div><div class="line"><span class="keyword">return</span> <span class="type">CGSizeMake</span>(size.width + padding, bounds.height)</div></pre></td></tr></table></figure>
+<h4 id="ArrayOfStuff-Stuff"><a href="#ArrayOfStuff-Stuff" class="headerlink" title="ArrayOfStuff + [Stuff]"></a>ArrayOfStuff + [Stuff]</h4><p>这个看起来像下面这样：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> <span class="type">ArrayOfStuff</span> + [<span class="type">Stuff</span>]</div><div class="line"><span class="comment">// 而不是</span></div><div class="line"><span class="type">ArrayOfStuff</span>.append(stuff)</div><div class="line"><span class="keyword">return</span> <span class="type">ArrayOfStuff</span></div></pre></td></tr></table></figure>
+<p>我经常这样做，每次都会对所需的编译时间产生影响。下面是最差的一个，这里的编译时间减少了97.9％。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 1250.3ms</span></div><div class="line"><span class="keyword">let</span> systemOptions = [ <span class="number">7</span>, <span class="number">14</span>, <span class="number">30</span>, -<span class="number">1</span> ]</div><div class="line"><span class="keyword">let</span> systemNames = (<span class="number">0</span>...<span class="number">2</span>).<span class="built_in">map</span>&#123; <span class="type">String</span>(format: localizedFormat, systemOptions[$<span class="number">0</span>]) &#125; + [<span class="type">NSLocalizedString</span>(<span class="string">"everything"</span>, comment: <span class="string">""</span>)]</div><div class="line"><span class="comment">// 一些中间的代码</span></div><div class="line">labelNames = <span class="type">Array</span>(systemNames[<span class="number">0</span>..&lt;<span class="built_in">count</span>]) + [systemNames.last!]</div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 25.5ms</span></div><div class="line"><span class="keyword">let</span> systemOptions = [ <span class="number">7</span>, <span class="number">14</span>, <span class="number">30</span>, -<span class="number">1</span> ]</div><div class="line"><span class="keyword">var</span> systemNames = systemOptions.<span class="built_in">dropLast</span>().<span class="built_in">map</span>&#123; <span class="type">String</span>(format: localizedFormat, $<span class="number">0</span>) &#125;</div><div class="line">systemNames.append(<span class="type">NSLocalizedString</span>(<span class="string">"everything"</span>, comment: <span class="string">""</span>))</div><div class="line"><span class="comment">// 一些中间的代码</span></div><div class="line">labelNames = <span class="type">Array</span>(systemNames[<span class="number">0</span>..&lt;<span class="built_in">count</span>])</div><div class="line">labelNames.append(systemNames.last!)</div></pre></td></tr></table></figure>
+<h4 id="三元运算符"><a href="#三元运算符" class="headerlink" title="三元运算符"></a>三元运算符</h4><p>仅仅只是把三元运算符替换成 if-else 语句，就让编译时间减少了92.9%。如果将 map 换成 for 循环，就又能减少75%（但是那样的话我的眼睛可就受不了了）。😉</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 239.0ms</span></div><div class="line"><span class="keyword">let</span> labelNames = type == <span class="number">0</span> ? (<span class="number">1</span>...<span class="number">5</span>).<span class="built_in">map</span>&#123;type0ToString($<span class="number">0</span>)&#125; : (<span class="number">0</span>...<span class="number">2</span>).<span class="built_in">map</span>&#123;type1ToString($<span class="number">0</span>)&#125;</div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 16.9ms</span></div><div class="line"><span class="keyword">var</span> labelNames: [<span class="type">String</span>]</div><div class="line"><span class="keyword">if</span> type == <span class="number">0</span> &#123;</div><div class="line">    labelNames = (<span class="number">1</span>...<span class="number">5</span>).<span class="built_in">map</span>&#123;type0ToString($<span class="number">0</span>)&#125;</div><div class="line">&#125; <span class="keyword">else</span> &#123;</div><div class="line">    labelNames = (<span class="number">0</span>...<span class="number">2</span>).<span class="built_in">map</span>&#123;type1ToString($<span class="number">0</span>)&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="转换-CGFloat-到-CGFloat"><a href="#转换-CGFloat-到-CGFloat" class="headerlink" title="转换 CGFloat 到 CGFloat"></a>转换 CGFloat 到 CGFloat</h4><p>没听懂我在说什么？其实下面例子中值已经是 CGFloat 了，并且有些括号是多余的。在清理完这些冗余之后，编译时间减少了99.9%。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 3431.7 ms</span></div><div class="line"><span class="keyword">return</span> <span class="type">CGFloat</span>(<span class="type">M_PI</span>) * (<span class="type">CGFloat</span>((hour + hourDelta + <span class="type">CGFloat</span>(minute + minuteDelta) / <span class="number">60</span>) * <span class="number">5</span>) - <span class="number">15</span>) * unit / <span class="number">180</span></div><div class="line"></div><div class="line"><span class="comment">// 编译时间: 3.0ms</span></div><div class="line"><span class="keyword">return</span> <span class="type">CGFloat</span>(<span class="type">M_PI</span>) * ((hour + hourDelta + (minute + minuteDelta) / <span class="number">60</span>) * <span class="number">5</span> - <span class="number">15</span>) * unit / <span class="number">180</span></div></pre></td></tr></table></figure>
+<h4 id="Round"><a href="#Round" class="headerlink" title="Round()"></a>Round()</h4><p>下面是一个很奇怪的例子，下面的例子中变量是一个局部变量与实例变量的混合。这个问题似乎不是出在四舍五入本身，而是在于结合代码的方法。去掉四舍五入的方法大概能减少 <strong>97.6%</strong> 的构建时间。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 编译时间: 1433.7ms</span></div><div class="line"><span class="keyword">let</span> expansion = a — b — <span class="built_in">c</span> + round(d * <span class="number">0.66</span>) + e</div><div class="line"><span class="comment">// 编译时间: 34.7ms</span></div><div class="line"><span class="keyword">let</span> expansion = a — b — <span class="built_in">c</span> + d * <span class="number">0.66</span> + e</div></pre></td></tr></table></figure>
+<p>注意：以上所有测试都在MacBool Air(13英寸，2013年中)上进行。</p>
+<h4 id="尝试一下吧"><a href="#尝试一下吧" class="headerlink" title="尝试一下吧"></a>尝试一下吧</h4><p>不管你是否面临过编译时间太长的问题，编写对编译器友好的代码都是非常有用的。我确信你会在其中找到一些惊喜。作为参考，这里有完整的代码，我的工程中可以5秒内完成编译…</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> UIKit</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">CMExpandingTextField</span>: <span class="title">UITextField</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">textFieldEditingChanged</span><span class="params">()</span></span> &#123;</div><div class="line">        invalidateIntrinsicContentSize()</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">intrinsicContentSize</span><span class="params">()</span></span> -&gt; <span class="type">CGSize</span> &#123;</div><div class="line">        <span class="keyword">if</span> isFirstResponder(), <span class="keyword">let</span> text = text &#123;</div><div class="line">            <span class="keyword">let</span> size = text.sizeWithAttributes(typingAttributes)</div><div class="line">            <span class="keyword">return</span> <span class="type">CGSize</span>(width: size.width + (rightView?.bounds.width ?? <span class="number">0</span>) + (leftView?.bounds.width ?? <span class="number">0</span>) + <span class="number">22</span>, height: bounds.height)</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.intrinsicContentSize()</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
           
         
       
@@ -895,7 +891,7 @@
               
                 
                 <a class="post-title-link" href="/2017/07/21/翻译杂志应用/" itemprop="url">
-                  iOS的Core Text教程：制作一个杂志应用
+                  (翻译)iOS的Core Text教程：制作一个杂志应用
                 </a>
               
             
@@ -963,7 +959,7 @@
 
           
           
-             <span id="/2017/07/21/翻译杂志应用/" class="leancloud_visitors" data-flag-title="iOS的Core Text教程：制作一个杂志应用">
+             <span id="/2017/07/21/翻译杂志应用/" class="leancloud_visitors" data-flag-title="(翻译)iOS的Core Text教程：制作一个杂志应用">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
