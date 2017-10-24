@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="iOS,架构," />
 
 
 
@@ -84,67 +84,36 @@
 
 
 
-<meta name="description" content="从苏州回来之后，迎来了第一个比较重要的日子。
- papa突然跟我说！！！
- “我星期六请你吃大餐啊！！！”
+<meta name="description" content="上一篇从讲解了MVVM的理论知识，这一篇会举几个实际应用中的例子，验证提到的MVVM的几个优势，强化记忆。
+实例一：RAC简单实践界面上放置一个UITextField
 
-完全反应不过来的又吉君
+现在想要在输入框上的值改变的时候都能得到通知，拿到输入框上的值，如下图的效果，应该怎么做？
 
-就是！！！5.20！！！然而我还是一脸糊涂：
-一直都没在意过的节日….突然开始还真像那么回事！主要是：
-有！得！吃！
- 嘿嘿嘿嘿
-
-
-
-于是红包雨一下！！papa和我都有得吃了！！！
-但是 ！！
-papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！！！！">
+按照理论篇中响应式编程一节的比喻，输入框就像一个不断往外出”玻璃球”的水龙头，现在我们对这个水龙头的变化是感兴趣的。那么就在这个水龙头上">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ruanpapa和又吉君的日常之六">
-<meta property="og:url" content="http://yoursite.com/2017/05/25/ruanpapa和又吉君的日常之六/index.html">
+<meta property="og:title" content="响应式编程与MVVM架构--实践篇">
+<meta property="og:url" content="http://yoursite.com/2017/10/17/响应式编程与MVVM架构--实践篇/index.html">
 <meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
-<meta property="og:description" content="从苏州回来之后，迎来了第一个比较重要的日子。
- papa突然跟我说！！！
- “我星期六请你吃大餐啊！！！”
+<meta property="og:description" content="上一篇从讲解了MVVM的理论知识，这一篇会举几个实际应用中的例子，验证提到的MVVM的几个优势，强化记忆。
+实例一：RAC简单实践界面上放置一个UITextField
 
-完全反应不过来的又吉君
+现在想要在输入框上的值改变的时候都能得到通知，拿到输入框上的值，如下图的效果，应该怎么做？
 
-就是！！！5.20！！！然而我还是一脸糊涂：
-一直都没在意过的节日….突然开始还真像那么回事！主要是：
-有！得！吃！
- 嘿嘿嘿嘿
-
-
-
-于是红包雨一下！！papa和我都有得吃了！！！
-但是 ！！
-papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！！！！">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/5431890-01164f67324236ec.jpg">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/5431890-4aa1d67479db5d07.jpg">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/5431890-408407567043ba5b.jpg">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/5431890-8aee97c7c90ead14.jpg">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/5431890-f7569fcfbe04f772.jpg">
-<meta property="og:updated_time" content="2017-05-25T12:18:06.000Z">
+按照理论篇中响应式编程一节的比喻，输入框就像一个不断往外出”玻璃球”的水龙头，现在我们对这个水龙头的变化是感兴趣的。那么就在这个水龙头上">
+<meta property="og:image" content="http://yoursite.com/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/RAC简单实践1.jpg">
+<meta property="og:image" content="http://yoursite.com/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/简单实践图示1.png">
+<meta property="og:image" content="http://yoursite.com/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/RAC简单实践2.png">
+<meta property="og:image" content="http://yoursite.com/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/简单实践图示2.png">
+<meta property="og:updated_time" content="2017-10-18T11:03:52.995Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ruanpapa和又吉君的日常之六">
-<meta name="twitter:description" content="从苏州回来之后，迎来了第一个比较重要的日子。
- papa突然跟我说！！！
- “我星期六请你吃大餐啊！！！”
+<meta name="twitter:title" content="响应式编程与MVVM架构--实践篇">
+<meta name="twitter:description" content="上一篇从讲解了MVVM的理论知识，这一篇会举几个实际应用中的例子，验证提到的MVVM的几个优势，强化记忆。
+实例一：RAC简单实践界面上放置一个UITextField
 
-完全反应不过来的又吉君
+现在想要在输入框上的值改变的时候都能得到通知，拿到输入框上的值，如下图的效果，应该怎么做？
 
-就是！！！5.20！！！然而我还是一脸糊涂：
-一直都没在意过的节日….突然开始还真像那么回事！主要是：
-有！得！吃！
- 嘿嘿嘿嘿
-
-
-
-于是红包雨一下！！papa和我都有得吃了！！！
-但是 ！！
-papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！！！！">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/5431890-01164f67324236ec.jpg">
+按照理论篇中响应式编程一节的比喻，输入框就像一个不断往外出”玻璃球”的水龙头，现在我们对这个水龙头的变化是感兴趣的。那么就在这个水龙头上">
+<meta name="twitter:image" content="http://yoursite.com/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/RAC简单实践1.jpg">
 
 
 
@@ -172,13 +141,13 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/05/25/ruanpapa和又吉君的日常之六/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/10/17/响应式编程与MVVM架构--实践篇/"/>
 
 
 
 
 
-  <title> ruanpapa和又吉君的日常之六 | ruanpapa和又吉君写字的地方 </title>
+  <title> 响应式编程与MVVM架构--实践篇 | ruanpapa和又吉君写字的地方 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -301,7 +270,7 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/25/ruanpapa和又吉君的日常之六/">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/17/响应式编程与MVVM架构--实践篇/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="ruanpapa & 又吉君">
@@ -325,7 +294,7 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
             
             
               
-                ruanpapa和又吉君的日常之六
+                响应式编程与MVVM架构--实践篇
               
             
           </h1>
@@ -340,8 +309,8 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-25T19:12:44+08:00">
-                2017-05-25
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-17T22:04:29+08:00">
+                2017-10-17
               </time>
             
 
@@ -363,8 +332,8 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ruanpapa-又吉君的日常/" itemprop="url" rel="index">
-                    <span itemprop="name">ruanpapa&又吉君的日常</span>
+                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
+                    <span itemprop="name">ruanpapa--技术贴</span>
                   </a>
                 </span>
 
@@ -381,8 +350,8 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/05/25/ruanpapa和又吉君的日常之六/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/05/25/ruanpapa和又吉君的日常之六/" itemprop="commentCount"></span>
+                <a href="/2017/10/17/响应式编程与MVVM架构--实践篇/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/10/17/响应式编程与MVVM架构--实践篇/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -392,7 +361,7 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
 
           
           
-             <span id="/2017/05/25/ruanpapa和又吉君的日常之六/" class="leancloud_visitors" data-flag-title="ruanpapa和又吉君的日常之六">
+             <span id="/2017/10/17/响应式编程与MVVM架构--实践篇/" class="leancloud_visitors" data-flag-title="响应式编程与MVVM架构--实践篇">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -419,59 +388,35 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
       
 
       
-        <blockquote>
-<p> <strong>从苏州回来之后，迎来了第一个比较重要的日子。</strong></p>
-<p> <strong>papa突然跟我说！！！</strong></p>
-<p> <strong>“我星期六请你吃大餐啊！！！”</strong></p>
-</blockquote>
-<p><img src="http://upload-images.jianshu.io/upload_images/5431890-01164f67324236ec.jpg" alt="完全反应不过来的又吉君"></p><p align="center"><font color="9E9E9E"><u>完全反应不过来的又吉君</u></font></p><p></p>
-<p><br></p>
-<h3 id="就是！！！5-20！！！"><a href="#就是！！！5-20！！！" class="headerlink" title="就是！！！5.20！！！"></a>就是！！！5.20！！！</h3><p>然而我还是一脸糊涂：</p>
-<p>一直都没在意过的节日….突然开始还真像那么回事！主要是：</p>
-<h4 id="有！得！吃！"><a href="#有！得！吃！" class="headerlink" title="有！得！吃！"></a>有！得！吃！</h4><p><img src="http://upload-images.jianshu.io/upload_images/5431890-4aa1d67479db5d07.jpg" alt="嘿嘿嘿嘿"></p>
- <p align="center"><font color="9E9E9E"><u>嘿嘿嘿嘿</u></font></p>
-
-<p><br></p>
-<blockquote>
-<p>于是红包雨一下！！papa和我都有得吃了！！！</p>
-<p><strong>但是</strong> ！！</p>
-<p>papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！！！！</p>
-<p>嗯！我的papa可能一直是个 🤞</p>
-<p>sad！<em>(┐「ε:)</em></p>
-</blockquote>
-<h3 id="悲伤的我脑洞一开，决定实施秀恩爱计划"><a href="#悲伤的我脑洞一开，决定实施秀恩爱计划" class="headerlink" title="悲伤的我脑洞一开，决定实施秀恩爱计划"></a>悲伤的我脑洞一开，决定实施秀恩爱计划</h3><ul>
-<li>异地恋一定要秀一秀的！（可惜papa不爱秀）</li>
-<li>于是…….</li>
-<li>吃的东西经过我的手都变成这样了！！！</li>
-</ul>
-<p>​</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/5431890-408407567043ba5b.jpg" alt="徐州的虾+广州的麻辣香锅"></p><p align="center"><font color="9E9E9E"><u>徐州的虾+广州的麻辣香锅</u></font></p><p></p>
-<p><br></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/5431890-8aee97c7c90ead14.jpg" alt="酸奶酪+奶茶"></p><p align="center"><font color="9E9E9E"><u>酸奶酪+奶茶</u></font></p><p></p>
-<p><br><br> <img src="http://upload-images.jianshu.io/upload_images/5431890-f7569fcfbe04f772.jpg" alt="绿健奶业+蜜雪冰城"></p><p align="center"><font color="9E9E9E"><u>绿健奶业+蜜雪冰城</u></font></p><p></p>
-<p><br></p>
-<blockquote>
-<p>papa呀！！超级谢谢你噢！！你要一直这样！！！</p>
-<h3 id="不跟我一起吃至少也要让我吃！！！"><a href="#不跟我一起吃至少也要让我吃！！！" class="headerlink" title="不跟我一起吃至少也要让我吃！！！"></a>不跟我一起吃至少也要让我吃！！！</h3><h2 id="吃！！"><a href="#吃！！" class="headerlink" title="吃！！"></a>吃！！</h2><h1 id="吃！"><a href="#吃！" class="headerlink" title="吃！"></a>吃！</h1></blockquote>
+        <p><a href="http://www.jianshu.com/p/2c207dd0669e" target="_blank" rel="external">上一篇</a>从讲解了MVVM的理论知识，这一篇会举几个实际应用中的例子，验证提到的MVVM的几个优势，强化记忆。</p>
+<h2 id="实例一：RAC简单实践"><a href="#实例一：RAC简单实践" class="headerlink" title="实例一：RAC简单实践"></a>实例一：RAC简单实践</h2><p>界面上放置一个UITextField</p>
+<ol>
+<li><p>现在想要在输入框上的值改变的时候都能得到通知，拿到输入框上的值，如下图的效果，应该怎么做？</p>
+<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/RAC简单实践1.jpg" alt="RAC简单实践1"></p>
+<p>按照<a href="http://www.jianshu.com/p/2c207dd0669e" target="_blank" rel="external">理论篇</a>中响应式编程一节的比喻，输入框就像一个不断往外出”玻璃球”的水龙头，现在我们对这个水龙头的变化是感兴趣的。那么就在这个水龙头上套一根水管，成为接收者(subscriber)，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[self.textField.rac_textSignal subscribeNext:^(id x) &#123;</div><div class="line">        NSLog(@&quot;%@&quot;, x);</div><div class="line">&#125;];</div></pre></td></tr></table></figure>
+<p>下面解释一下：</p>
+<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/简单实践图示1.png" alt="简单实践图示1"></p>
 <ul>
-<li><p>身体和灵魂必须有一个在路上！！</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>。</p>
-<p>要么旅行！要么边旅行边吃！！</p>
+<li><p>rac_textSignal：就是给输入框套上水管，在RAC的概念里，叫做注册成为接收者。</p>
+</li>
+<li><p>subscribeNext：则会在每次”玻璃球”通过时回调，从玻璃球中就可以得到输入框中的值了。</p>
+<p>​</p>
 </li>
 </ul>
-<p><br><br><br></p>
-<p align="right">by：又吉君</p>
+</li>
+</ol>
+<ol>
+<li><p>还是刚刚的输入框，但是只要输入框上的字超过3个字符，并且最终打印出来的是<strong>字符个数</strong> ，如下图的效果，应该怎么做？</p>
+<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/RAC简单实践2.png" alt="RAC简单实践2"></p>
+<p>先将每次传来的字符串映射(map)为对应的长度值，然后筛选出大于3的长度值通过，最后打印。代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[[[self.textField.rac_textSignal</div><div class="line">       map:^id(NSString *text) &#123;</div><div class="line">           return @(text.length);</div><div class="line">       &#125;]</div><div class="line">       filter:^BOOL(NSNumber *length) &#123;</div><div class="line">           return length.integerValue &gt; 3;</div><div class="line">       &#125;]</div><div class="line">       subscribeNext:^(NSNumber *length) &#123;</div><div class="line">           NSLog(@&quot;字符串长度：%ld&quot;, (long)length.integerValue);</div><div class="line">       &#125;];</div></pre></td></tr></table></figure>
+<p>帮助理解代码的图示如下：</p>
+<p><img src="/Users/Vernon/Library/Mobile Documents/com~apple~CloudDocs/分享/简单实践图示2.png" alt="简单实践图示2"></p>
+</li>
+</ol>
+<p>注：RAC为应用中发生的不同事件流提供了一个标准接口，在RAC术语中这个叫做信号(signal), 由RACSignal类表示。这样就可以跟上图一样，map、filter、subscribeNext这些函数可以一个接一个套下去，就像一条水管。RACSignal的每个操作都会返回一个RACSignal，在术语上叫做连贯接口(fluent interface)，这样实现就可以直接构建管道，而不用每一步都使用本地变量。</p>
+<h2 id="实例二：登录界面"><a href="#实例二：登录界面" class="headerlink" title="实例二：登录界面"></a>实例二：登录界面</h2><h2 id="实例三：简易的ViewModel"><a href="#实例三：简易的ViewModel" class="headerlink" title="实例三：简易的ViewModel"></a>实例三：简易的ViewModel</h2><h2 id="实例四：统一的消息传递机制"><a href="#实例四：统一的消息传递机制" class="headerlink" title="实例四：统一的消息传递机制"></a>实例四：统一的消息传递机制</h2>
       
     </div>
 
@@ -492,13 +437,21 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/架构/" rel="tag"># 架构</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/05/15/短暂而快乐-苏州行/" rel="next" title="短暂而快乐--苏州行">
-                <i class="fa fa-chevron-left"></i> 短暂而快乐--苏州行
+              <a href="/2017/10/12/响应式编程与MVVM架构--理论篇/" rel="next" title="响应式编程与MVVM架构—理论篇">
+                <i class="fa fa-chevron-left"></i> 响应式编程与MVVM架构—理论篇
               </a>
             
           </div>
@@ -506,10 +459,6 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/07/21/翻译杂志应用/" rel="prev" title="iOS的Core Text教程：制作一个杂志应用">
-                iOS的Core Text教程：制作一个杂志应用 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -535,8 +484,8 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/05/25/ruanpapa和又吉君的日常之六/"
-           data-title="ruanpapa和又吉君的日常之六" data-url="http://yoursite.com/2017/05/25/ruanpapa和又吉君的日常之六/">
+      <div class="ds-thread" data-thread-key="2017/10/17/响应式编程与MVVM架构--实践篇/"
+           data-title="响应式编程与MVVM架构--实践篇" data-url="http://yoursite.com/2017/10/17/响应式编程与MVVM架构--实践篇/">
       </div>
     
   </div>
@@ -647,7 +596,7 @@ papa竟然和舍舍过二人世界去了！午饭还是舍舍请他吃的！！�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#就是！！！5-20！！！"><span class="nav-number">1.</span> <span class="nav-text">就是！！！5.20！！！</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#有！得！吃！"><span class="nav-number">1.1.</span> <span class="nav-text">有！得！吃！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#悲伤的我脑洞一开，决定实施秀恩爱计划"><span class="nav-number">2.</span> <span class="nav-text">悲伤的我脑洞一开，决定实施秀恩爱计划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不跟我一起吃至少也要让我吃！！！"><span class="nav-number">3.</span> <span class="nav-text">不跟我一起吃至少也要让我吃！！！</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#吃！！"><span class="nav-number"></span> <span class="nav-text">吃！！</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#吃！"><span class="nav-number"></span> <span class="nav-text">吃！</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实例一：RAC简单实践"><span class="nav-number">1.</span> <span class="nav-text">实例一：RAC简单实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例二：登录界面"><span class="nav-number">2.</span> <span class="nav-text">实例二：登录界面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例三：简易的ViewModel"><span class="nav-number">3.</span> <span class="nav-text">实例三：简易的ViewModel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例四：统一的消息传递机制"><span class="nav-number">4.</span> <span class="nav-text">实例四：统一的消息传递机制</span></a></li></ol></div>
             
 
           </div>
