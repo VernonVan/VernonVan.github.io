@@ -84,16 +84,27 @@
 
 
 
-<meta name="description" content="ruanpapa和又吉君写字的地方">
+<meta name="description" content="最近在公司做了个表情键盘的需求，这个需求的技术难度不会很大，比较偏向业务。但是要把用户体验做的好也是不容易的，其中有几个点需要特别注意。话不多说，下面开始正文(注：本文对应的Demo放在Github上：https://github.com/VernonVan/PPStickerKeyboard)。
+市面上的表情键盘的分析首先来看一下市面上主要的几个APP上的表情键盘，平时使用的时候不会去关注细节，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS表情键盘的完整实现">
 <meta property="og:url" content="http://yoursite.com/2018/01/19/iOS表情键盘的完整实现/index.html">
 <meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
-<meta property="og:description" content="ruanpapa和又吉君写字的地方">
-<meta property="og:updated_time" content="2018-01-21T14:17:48.809Z">
+<meta property="og:description" content="最近在公司做了个表情键盘的需求，这个需求的技术难度不会很大，比较偏向业务。但是要把用户体验做的好也是不容易的，其中有几个点需要特别注意。话不多说，下面开始正文(注：本文对应的Demo放在Github上：https://github.com/VernonVan/PPStickerKeyboard)。
+市面上的表情键盘的分析首先来看一下市面上主要的几个APP上的表情键盘，平时使用的时候不会去关注细节，">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-2c59f42aa0dd0dd1.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-5f667795a7778a6e.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-d4cddecefc22cfc9.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-63023d1dfcce132b.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-9d1661ee627dc3ca.GIF?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-10847f03391e9560.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-3f647a459a2c59f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-01-22T08:43:49.134Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS表情键盘的完整实现">
-<meta name="twitter:description" content="ruanpapa和又吉君写字的地方">
+<meta name="twitter:description" content="最近在公司做了个表情键盘的需求，这个需求的技术难度不会很大，比较偏向业务。但是要把用户体验做的好也是不容易的，其中有几个点需要特别注意。话不多说，下面开始正文(注：本文对应的Demo放在Github上：https://github.com/VernonVan/PPStickerKeyboard)。
+市面上的表情键盘的分析首先来看一下市面上主要的几个APP上的表情键盘，平时使用的时候不会去关注细节，">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/698554-2c59f42aa0dd0dd1.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -368,7 +379,46 @@
       
 
       
-        
+        <p>最近在公司做了个表情键盘的需求，这个需求的技术难度不会很大，比较偏向业务。但是要把用户体验做的好也是不容易的，其中有几个点需要特别注意。话不多说，下面开始正文(注：本文对应的Demo放在Github上：<a href="https://github.com/VernonVan/PPStickerKeyboard)。" target="_blank" rel="external">https://github.com/VernonVan/PPStickerKeyboard)。</a></p>
+<h2 id="市面上的表情键盘的分析"><a href="#市面上的表情键盘的分析" class="headerlink" title="市面上的表情键盘的分析"></a>市面上的表情键盘的分析</h2><p>首先来看一下市面上主要的几个APP上的表情键盘，平时使用的时候不会去关注细节，这次特意去使用了表情键盘，发现各个APP的体验还是有优有劣的。</p>
+<p>首先是QQ和微信，这两者差不多，切换到表情键盘的时候都是没有光标的，这样的用户体验是非常不好的，没有办法在输入表情的时候框选区域，也不能拖动光标进行特定位置的复制黏贴删除等操作，微信甚至在输入框里显示的都不是点击的表情图片，而是文字描述。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/698554-2c59f42aa0dd0dd1.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="IMG_5063"></p>
+<p>接下来看一下微博国际版，国际版调起表情键盘时是有光标的，是一个”真正的”键盘，但是想要拖拽光标的时候，很大概率上会触发到保存图片的行为（如下图所示），导致根本没办法拖动光标。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/698554-5f667795a7778a6e.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微博国际版误触"></p>
+<p>同时微博国际版输入框表情黏贴后的光标定位是错误的，如下图，开始时光标是在第4个表情后面，然后复制狗头+害羞两个表情黏贴到光标后，光标还是在第4个表情后，同时黏贴的表情前后都莫名多了空格。<img src="http://upload-images.jianshu.io/upload_images/698554-d4cddecefc22cfc9.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微博国际版黏贴"></p>
+<p>最后是微博，微博客户端的表情键盘的体验是非常好的，上面说到的问题都不存在，而且表情键盘的删除按钮还能长按删除输入框的内容。<img src="http://upload-images.jianshu.io/upload_images/698554-63023d1dfcce132b.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="微博表情键盘"></p>
+<h2 id="表情键盘的实现"><a href="#表情键盘的实现" class="headerlink" title="表情键盘的实现"></a>表情键盘的实现</h2><h4 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h4><p>主要实现了以下几个功能</p>
+<ul>
+<li><p>能输入表情，有光标，支持复制黏贴删除表情等</p>
+</li>
+<li><p>长按预览表情</p>
+</li>
+<li><p>删除表情、长按连续删除表情</p>
+</li>
+<li><p>适配 iPhone X</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/698554-9d1661ee627dc3ca.GIF?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="演示"></p>
+</li>
+</ul>
+<h4 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h4><p>首先，表情包的图片是用bundle的形式组织的，用PPSticker类表征一套表情包，用PPEmoji类表征某一个表情，用一个plist作为配置文件，存储表情包的信息。<img src="http://upload-images.jianshu.io/upload_images/698554-10847f03391e9560.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="表情的组织"></p>
+<p>PPStickerDataManager类主要负责数据部分，用单例的形式，这样可以在初始化的时候只会读取一次plist文件中的所有表情信息；同时我们把输入框内容发到服务端以及从服务端请求到的都是纯文本的，比如会把 “笑死了🤣” 转成 “笑死了[笑哭]” 这样的纯文本，而不是直接把表情图片直接发到服务端，也就是说项目中有大量的地方会有把文本-&gt;表情的操作，所以PPStickerDataManager类也提供匹配某段纯文本中的表情，并把文本替换为图片的功能，PPStickerDataManager类的头文件如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">@interface PPStickerDataManager : NSObject</div><div class="line"></div><div class="line">+ (instancetype)sharedInstance;</div><div class="line"></div><div class="line">/// 所有的表情包</div><div class="line">@property (nonatomic, strong, readonly) NSArray&lt;PPSticker *&gt; *allStickers;</div><div class="line"></div><div class="line">/* 匹配给定attributedString中的所有emoji，如果匹配到的emoji有本地图片的话会直接换成本地的图片</div><div class="line"> *</div><div class="line"> * @param attributedString 可能包含表情包的attributedString</div><div class="line"> * @param font 表情图片的对齐字体大小</div><div class="line"> */</div><div class="line">- (void)replaceEmojiForAttributedString:(NSMutableAttributedString *)attributedString font:(UIFont *)font;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<h4 id="“真正的”键盘"><a href="#“真正的”键盘" class="headerlink" title="“真正的”键盘"></a>“真正的”键盘</h4><p>真正的键盘也就是说调起表情键盘时输入框是有光标的，能进行拖拽光标、选中区域等的操作，这样的体验才是与系统键盘一致的。其实系统已经提供好了接口给我们直接使用，UITextView和UITextField都有的inputView和inputAccessoryView就是用来实现自定义键盘的，这两个属性的定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// Presented when object becomes first responder.  If set to nil, reverts to following responder chain.  If</div><div class="line">// set while first responder, will not take effect until reloadInputViews is called.</div><div class="line">@property (nullable, readwrite, strong) UIView *inputView;             </div><div class="line">@property (nullable, readwrite, strong) UIView *inputAccessoryView;</div></pre></td></tr></table></figure>
+<p>同时系统键盘在 设置-&gt;声音-&gt;按键音 选项打开且手机非静音状态下输入是有按键的声音的，这个按键音也是可以支持的，只要自定义键盘类遵循UIInputViewAudioFeedback协议，同时实现    enableInputClicksWhenVisible 方法并返回YES，这样就可以在点击表情的时候调用 [[UIDevice currentDevice] playInputClick] 方法发出按键音了，详情请查看<a href="https://developer.apple.com/library/content/documentation/StringsTextFonts/Conceptual/TextAndWebiPhoneOS/InputViews/InputViews.html" target="_blank" rel="external">苹果的官方文档</a>。</p>
+<p>下面是Demo中键盘切换方法的实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">- (void)changeKeyboardTo:(PPKeyboardType)toType</div><div class="line">&#123;</div><div class="line">    switch (toType) &#123;</div><div class="line">        case PPKeyboardTypeSystem:</div><div class="line">            self.textView.inputView = nil;    // 切换到系统键盘</div><div class="line">            [self.textView reloadInputViews]; // 调用reloadInputViews方法会立刻进行键盘的切换</div><div class="line">            break;</div><div class="line">        case PPKeyboardTypeSticker:            </div><div class="line">            self.textView.inputView = self.stickerKeyboard; // 切换到自定义的表情键盘</div><div class="line">            [self.textView reloadInputViews];</div><div class="line">            break;</div><div class="line">        default:</div><div class="line">            break;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="去除表情的拖拽交互"><a href="#去除表情的拖拽交互" class="headerlink" title="去除表情的拖拽交互"></a>去除表情的拖拽交互</h4><p>在iOS11上，UITextView上的NSTextAttachment（表情）默认可以进行拖拽交互，但是却导致拖动光标时很容易触发这个交互（图示可以查看上面说到的微博国际版中的误触）。一番查找之后才找到一个比较隐蔽的属性：textDragInteraction，直接设置为NO就能禁止掉NSTextAttachment的拖拽交互。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if (@available(iOS 11.0, *)) &#123;	// 只在iOS11及以上才有这个属性</div><div class="line">     _textView.textDragInteraction.enabled = NO;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="与服务端的交互"><a href="#与服务端的交互" class="headerlink" title="与服务端的交互"></a>与服务端的交互</h4><p>我们在输入框中输入的内容与服务端进行交互的时候都是用纯文本的，比如会把 “笑死了🤣” 转成 “笑死了[笑哭]” 这样的纯文本发到服务端，而不是直接发表情图片，向服务端请求内容的时候也是传回 “笑死了[笑哭]”，然后客户端再根据正则匹配找出表情替换成对应的表情图片，然后显示到页面上。具体过程可以看下图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/698554-3f647a459a2c59f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="PPTextBackedString"></p>
+<p>也就是说，我们设置到输入框的NSAttributedString中的每一个NSTextAttachment都有一个”隐藏的”属性—表情的文本描述，这里对NSAttributedString进行拓展就能实现。pp_setTextBackedString可以对NSAttributedString的指定range设置一个)类型的属性，而pp_plainTextForRange能拿到NSAttributedString指定range的纯文本。具体实现如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">@implementation NSAttributedString (PPAddition)</div><div class="line"></div><div class="line">- (NSString *)pp_plainTextForRange:(NSRange)range</div><div class="line">&#123;</div><div class="line">    if (range.location == NSNotFound || range.length == NSNotFound) &#123;</div><div class="line">        return nil;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    NSMutableString *result = [[NSMutableString alloc] init];</div><div class="line">    if (range.length == 0) &#123;</div><div class="line">        return result;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    NSString *string = self.string;</div><div class="line">    [self enumerateAttribute:PPTextBackedStringAttributeName inRange:range options:kNilOptions usingBlock:^(id value, NSRange range, BOOL *stop) &#123;</div><div class="line">        PPTextBackedString *backed = value;</div><div class="line">        if (backed &amp;&amp; backed.string) &#123;</div><div class="line">            [result appendString:backed.string];</div><div class="line">        &#125; else &#123;</div><div class="line">            [result appendString:[string substringWithRange:range]];</div><div class="line">        &#125;</div><div class="line">    &#125;];</div><div class="line">    return result;</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div><div class="line"></div><div class="line">@implementation NSMutableAttributedString (PPAddition)</div><div class="line"></div><div class="line">- (void)pp_setTextBackedString:(PPTextBackedString *)textBackedString range:(NSRange)range</div><div class="line">&#123;</div><div class="line">    if (textBackedString &amp;&amp; ![NSNull isEqual:textBackedString]) &#123;</div><div class="line">        [self addAttribute:PPTextBackedStringAttributeName value:textBackedString range:range];</div><div class="line">    &#125; else &#123;</div><div class="line">        [self removeAttribute:PPTextBackedStringAttributeName range:range];</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<h4 id="灵活的光标"><a href="#灵活的光标" class="headerlink" title="灵活的光标"></a>灵活的光标</h4><p>加上表情功能，UITextView都是用NSAttributedString进行赋值的，并且我们底层其实还是用上面说到的纯文本进行实现的，那么把 [笑死] 转成 🤣 就会从4个字符变成1个字符，这里是有差值的，如果不处理的话就会出现上面提到的微博国际版中复制黏贴输入框的表情会导致光标位置不对，甚至莫名其妙多出前后空格的问题。为了精准的定位光标，我们需要自行处理好这些问题。</p>
+<p>这里自己继承并实现了UITextView的子类PPStickerTextView，在这个类中重载复制、黏贴、剪切等操作，分别对应的方法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">- (void)cut:(id)sender;		// 剪切</div><div class="line"></div><div class="line">- (void)copy:(id)sender;	// 复制</div><div class="line"></div><div class="line">- (void)paste:(id)sender;	// 黏贴</div></pre></td></tr></table></figure>
+<p>下面以剪切方法举例，看看怎么处理光标的问题，需要注意的地方请看对应的注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">- (void)cut:(id)sender</div><div class="line">&#123;</div><div class="line">    // 1.从textView中拿到对应的纯文本，比如：笑死了[笑死]</div><div class="line">    NSString *string = [self.attributedText pp_plainTextForRange:self.selectedRange];</div><div class="line">    if (string.length) &#123;</div><div class="line">      	// 2. 将纯文本写入到剪贴板中</div><div class="line">        [UIPasteboard generalPasteboard].string = string;</div><div class="line"></div><div class="line">      	// 3. 记住当前的光标位置</div><div class="line">        NSRange selectedRange = self.selectedRange;</div><div class="line">        NSMutableAttributedString *attributeContent = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText];</div><div class="line">      	// 4. 将检测到是表情的文本替换成对应的图片</div><div class="line">        [attributeContent replaceCharactersInRange:self.selectedRange withString:@&quot;&quot;];</div><div class="line">        self.attributedText = attributeContent;</div><div class="line">      </div><div class="line">      	// 5. 重新设置光标</div><div class="line">        self.selectedRange = NSMakeRange(selectedRange.location, 0);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
       
     </div>
 
@@ -459,8 +509,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.jpg"
@@ -527,6 +586,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#市面上的表情键盘的分析"><span class="nav-number">1.</span> <span class="nav-text">市面上的表情键盘的分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表情键盘的实现"><span class="nav-number">2.</span> <span class="nav-text">表情键盘的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现效果"><span class="nav-number">2.0.1.</span> <span class="nav-text">实现效果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本思路"><span class="nav-number">2.0.2.</span> <span class="nav-text">基本思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#“真正的”键盘"><span class="nav-number">2.0.3.</span> <span class="nav-text">“真正的”键盘</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#去除表情的拖拽交互"><span class="nav-number">2.0.4.</span> <span class="nav-text">去除表情的拖拽交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#与服务端的交互"><span class="nav-number">2.0.5.</span> <span class="nav-text">与服务端的交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#灵活的光标"><span class="nav-number">2.0.6.</span> <span class="nav-text">灵活的光标</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
     </div>
