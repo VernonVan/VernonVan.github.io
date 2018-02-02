@@ -1,0 +1,870 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="背景Xcode 秉承了 Apple 封闭的传统，提供的可自定义的选项比起其他 IDE 来说是比较少的，不过在 Xcode 7 之前（包含 Xcode 7）我们还是可以通过插件实现 Xcode 的自定义，甚至还出现了像  Alcatraz 的专门的插件管理工具，开源社区中也有诸如 VVDocumenter-Xcode、CocoaPods 等知名的插件，不过这些便利随着 Xcode 8 的发布成为了过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Source Editor Extension — Xcode 格式化 Import 的插件">
+<meta property="og:url" content="http://yoursite.com/2018/02/01/格式化Import/index.html">
+<meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
+<meta property="og:description" content="背景Xcode 秉承了 Apple 封闭的传统，提供的可自定义的选项比起其他 IDE 来说是比较少的，不过在 Xcode 7 之前（包含 Xcode 7）我们还是可以通过插件实现 Xcode 的自定义，甚至还出现了像  Alcatraz 的专门的插件管理工具，开源社区中也有诸如 VVDocumenter-Xcode、CocoaPods 等知名的插件，不过这些便利随着 Xcode 8 的发布成为了过">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-a00fabcbca0f7353.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-0c32ca262d291557.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-b6a7d64355a372d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-0e6f169643d8a20f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-f57b5a31a603f5f3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-8e6d0b4a636883f2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-54682412d2c5b04a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-58e34917de432fbd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-9638491f62073029.gif?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-8fb83256d9e38800.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-7410ea37b33422fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-5202f8ddea721d38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-b35bafce22cccf86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/698554-d5f2a3622205f490.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-02-02T09:09:22.464Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Source Editor Extension — Xcode 格式化 Import 的插件">
+<meta name="twitter:description" content="背景Xcode 秉承了 Apple 封闭的传统，提供的可自定义的选项比起其他 IDE 来说是比较少的，不过在 Xcode 7 之前（包含 Xcode 7）我们还是可以通过插件实现 Xcode 的自定义，甚至还出现了像  Alcatraz 的专门的插件管理工具，开源社区中也有诸如 VVDocumenter-Xcode、CocoaPods 等知名的插件，不过这些便利随着 Xcode 8 的发布成为了过">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/698554-a00fabcbca0f7353.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/01/格式化Import/"/>
+
+
+
+
+
+  <title> Source Editor Extension — Xcode 格式化 Import 的插件 | ruanpapa和又吉君写字的地方 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">ruanpapa和又吉君写字的地方</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/格式化Import/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="ruanpapa & 又吉君">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Source Editor Extension — Xcode 格式化 Import 的插件
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-01T17:06:35+08:00">
+                2018-02-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
+                    <span itemprop="name">ruanpapa--技术贴</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/01/格式化Import/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/02/01/格式化Import/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/02/01/格式化Import/" class="leancloud_visitors" data-flag-title="Source Editor Extension — Xcode 格式化 Import 的插件">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Xcode 秉承了 Apple 封闭的传统，提供的可自定义的选项比起其他 IDE 来说是比较少的，不过在 Xcode 7 之前（包含 Xcode 7）我们还是可以通过插件实现 Xcode 的自定义，甚至还出现了像  <a href="https://github.com/alcatraz/Alcatraz" target="_blank" rel="external">Alcatraz</a> 的专门的插件管理工具，开源社区中也有诸如 <a href="https://link.jianshu.com/?t=https://github.com/onevcat/VVDocumenter-Xcode" target="_blank" rel="external">VVDocumenter-Xcode</a>、<a href="https://github.com/CocoaPods/CocoaPods" target="_blank" rel="external">CocoaPods</a> 等知名的插件，不过这些便利随着 Xcode 8 的发布成为了过去式。<br>出于安全性考虑（比如说 Xcode ghost 事件），Apple 从 Xcode 8 开始不再支持第三方的插件。Apple 方面提供了基于 App Extension 的解决方案 – Xcode Source Editor Extension，这是一个相当简单的方案，能且仅能完成有限的文本编辑辅助，很大部分之前第三方插件能完成的任务都没办法实现了。聊胜于无吧 😑<br>（本文会介绍 Source Editor Extension 的开发以及分发相关的知识，本文对应的 Demo 在：<a href="https://github.com/VernonVan/PPImportArrangerExtension）" target="_blank" rel="external">https://github.com/VernonVan/PPImportArrangerExtension）</a></p>
+<h2 id="创建插件"><a href="#创建插件" class="headerlink" title="创建插件"></a>创建插件</h2><ol>
+<li><p>创建一个 Cocoa App：Source Editor Extension 不能独立存在，必须依附于 Cocoa App。<br><img src="http://upload-images.jianshu.io/upload_images/698554-a00fabcbca0f7353.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Cocoa App"></p>
+<p>​</p>
+</li>
+<li><p>File -&gt; New -&gt; Target -&gt; Xcode Source Editor Extension 添加一个 Target，并激活这个 Target。<br><img src="http://upload-images.jianshu.io/upload_images/698554-0c32ca262d291557.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Xcode Source Editor Extension"><br><img src="http://upload-images.jianshu.io/upload_images/698554-b6a7d64355a372d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="激活 target"></p>
+</li>
+</ol>
+<p>这样就创建好了一个可运行的 Source Editor Extension，相当的简单。🧐</p>
+<h2 id="关键概念"><a href="#关键概念" class="headerlink" title="关键概念"></a>关键概念</h2><p><img src="http://upload-images.jianshu.io/upload_images/698554-0e6f169643d8a20f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="文件结构"></p>
+<ul>
+<li>SourceEditorExtension 类：遵循 XCSourceEditorExtension 协议的类，XCSourceEditorExtension 协议的头文件如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">@protocol XCSourceEditorExtension &lt;NSObject&gt;</div><div class="line"></div><div class="line">@optional</div><div class="line"></div><div class="line">- (void)extensionDidFinishLaunching;</div><div class="line"></div><div class="line">@property (readonly, copy) NSArray &lt;NSDictionary &lt;XCSourceEditorCommandDefinitionKey, id&gt; *&gt; *commandDefinitions;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<p>XCSourceEditorExtension 协议只有一个方法和一个属性，extensionDidFinishLaunching 方法是用来在插件加载好后是对插件进行一些准备工作的，根据 <a href="https://developer.apple.com/videos/play/wwdc2016/414/" target="_blank" rel="external">WWDC</a> 的说法，各个插件与 Xcode 本身的初始化过程是在不同进程上进行的，同样地，插件的崩溃并不会引起 Xcode 的崩溃。commandDefinitions 属性则可以动态返回插件的菜单项。</p>
+<p>SourceEditorCommand 类：遵循 XCSourceEditorCommand 协议的类，实现插件功能的核心类，对应到插件的菜单项，可以一个菜单项对应到一个 Command 类，也可以多个菜单项对应到一个 Command 类，XCSourceEditorCommand 协议头文件定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">@protocol XCSourceEditorCommand &lt;NSObject&gt;</div><div class="line"></div><div class="line">@required</div><div class="line"></div><div class="line">- (void)performCommandWithInvocation:(XCSourceEditorCommandInvocation *)invocation completionHandler:(void (^)(NSError * _Nullable nilOrError))completionHandler;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure></p>
+<p>XCSourceEditorCommandInvocation 类型的参数 invocation 主要是点击的菜单项的标识、当前文本信息（文本字符串数组、选中区间等）以及点击取消按钮的回调事件，completionHandler 参数则是用来通知 Xcode 本插件已经完成了自己的操作，需要保证一定要调用 completionHandler！否则会出现下图所示的提示，然后菜单项就会变灰不能再点击：<br><img src="http://upload-images.jianshu.io/upload_images/698554-f57b5a31a603f5f3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="插件 busy"><br><img src="http://upload-images.jianshu.io/upload_images/698554-8e6d0b4a636883f2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="菜单项变灰"></p>
+<ul>
+<li>Info.plist：Info.plist 文件用于静态配置插件对应的菜单项，如下图所示，XCSourceEditorExtensionPrincipalClass 对应到上文说的 XCSourceEditorExtension 类，XCSourceEditorCommandDefinitions 指定菜单项，XCSourceEditorCommandClassName 对应到上文说的 SourceEditorCommand 类，XCSourceEditorCommandIdentifier 是每个具体菜单项的标识，XCSourceEditorCommandName 是菜单项的描述。</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/698554-54682412d2c5b04a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Info.plist"></p>
+<ul>
+<li>保证 TARGETS 组下的两个 Target 用的同一个签名。</li>
+</ul>
+<h2 id="实现步骤"><a href="#实现步骤" class="headerlink" title="实现步骤"></a>实现步骤</h2><p>本 Demo 要实现的功能就是按照字母顺序重新排列当前文件的所有 Import，强迫症们一定知道我在说什么🤣，先来看一下效果：<br><img src="http://upload-images.jianshu.io/upload_images/698554-58e34917de432fbd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="效果图"><br><img src="http://upload-images.jianshu.io/upload_images/698554-9638491f62073029.gif?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="演示效果"><br>可以点击 Editor -&gt; ImportArranger -&gt; Arrange Imports 重新排列所有的 Imports，甚至还可以为其设置快键键。</p>
+<p>实现步骤反而没有什么可说的，主要是操作 invocation.buffer.lines 和 invocation.buffer.selections，分别对应的是当前文件的所有行和当前文件的选择区域，都是可变类型的数组，做完自定义的操作后操作数组即可更新当前文件。注意：<strong>不管是哪条执行路径，一定要保证调用到 completionHandler</strong>。其他需要留意的地方都在代码中的注释中给出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">- (void)performCommandWithInvocation:(XCSourceEditorCommandInvocation *)invocation completionHandler:(void (^)(NSError *_Nullable nilOrError))completionHandler</div><div class="line">&#123;</div><div class="line">    NSMutableArray&lt;NSString *&gt; *lines = invocation.buffer.lines;</div><div class="line">    if (!lines || !lines.count) &#123;</div><div class="line">        completionHandler(nil);</div><div class="line">        return;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    NSMutableArray&lt;NSString *&gt; *importLines = [[NSMutableArray alloc] init];</div><div class="line">    NSInteger firstLine = -1;</div><div class="line">    for (NSUInteger index = 0, max = lines.count; index &lt; max; index++) &#123;</div><div class="line">        NSString *line = lines[index];</div><div class="line">        NSString *pureLine = [line stringByReplacingOccurrencesOfString:@&quot; &quot; withString:@&quot;&quot;];       // 去掉多余的空格，以防被空格干扰没检测到 #import</div><div class="line">        // 支持 Objective-C、Swift、C 语言的导入方式</div><div class="line">        if ([pureLine hasPrefix:@&quot;#import&quot;] || [pureLine hasPrefix:@&quot;import&quot;] || [pureLine hasPrefix:@&quot;@class&quot;]</div><div class="line">            || [pureLine hasPrefix:@&quot;@import&quot;] || [pureLine hasPrefix:@&quot;#include&quot;]) &#123;     </div><div class="line">            [importLines addObject:line];</div><div class="line">            if (firstLine == -1) &#123;</div><div class="line">                firstLine = index;      // 记住第一行 #import 所在的行数，用来等下重新插入的位置</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (!importLines.count) &#123;</div><div class="line">        completionHandler(nil);</div><div class="line">        return;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    [invocation.buffer.lines removeObjectsInArray:importLines];</div><div class="line"></div><div class="line">    NSArray *noRepeatArray = [[NSSet setWithArray:importLines] allObjects];         // 去掉重复的 #import</div><div class="line">    NSMutableArray&lt;NSString *&gt; *sortedImports = [[NSMutableArray alloc] initWithArray:[noRepeatArray sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]];</div><div class="line"></div><div class="line">    // 引用系统文件在前，用户自定义的文件在后</div><div class="line">    NSMutableArray *systemImports = [[NSMutableArray alloc] init];</div><div class="line">    for (NSString *line in sortedImports) &#123;</div><div class="line">        if ([line containsString:@&quot;&lt;&quot;]) &#123;</div><div class="line">            [systemImports addObject:line];</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    if (systemImports.count) &#123;</div><div class="line">        [sortedImports removeObjectsInArray:systemImports];</div><div class="line">        [sortedImports insertObjects:systemImports atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, systemImports.count)]];</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (firstLine &gt;= 0 &amp;&amp; firstLine &lt; invocation.buffer.lines.count) &#123;</div><div class="line">        // 重新插入排好序的 #import 行</div><div class="line">        [invocation.buffer.lines insertObjects:sortedImports atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(firstLine, sortedImports.count)]];</div><div class="line">        // 选中所有 #import 行</div><div class="line">        [invocation.buffer.selections addObject:[[XCSourceTextRange alloc] initWithStart:XCSourceTextPositionMake(firstLine, 0) end:XCSourceTextPositionMake(firstLine + sortedImports.count, sortedImports.lastObject.length)]];</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    completionHandler(nil);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>选择这个插件作为当前 Scheme，选择 Xcode 运行，然后就会弹出一个黑色的 Xcode 供你调试了。<br><img src="http://upload-images.jianshu.io/upload_images/698554-8fb83256d9e38800.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br><img src="http://upload-images.jianshu.io/upload_images/698554-7410ea37b33422fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="调试插件"></p>
+<h2 id="分发"><a href="#分发" class="headerlink" title="分发"></a>分发</h2><p>插件开发测试完成之后，最重要的当然是将插件分发出去，供他人使用。Apple 在  <a href="https://developer.apple.com/videos/play/wwdc2016/414/" target="_blank" rel="external">WWDC</a> 说到 Xcode Source Editor Extension 是可以上架 Mac App Store 的，不过受限于 Source Editor Extension 功能实在太少，目前也没有在 Mac App Store 上看到很火的插件。更多是直接把 .app 文件上传到 Github 上供人下载（这里有人整理了一些不错的插件：<a href="https://github.com/theswiftdev/awesome-xcode-extensions），具体步骤如下：" target="_blank" rel="external">https://github.com/theswiftdev/awesome-xcode-extensions），具体步骤如下：</a></p>
+<h4 id="打包"><a href="#打包" class="headerlink" title="打包"></a>打包</h4><p>测试完成后，找到 Products 下面的 .app 文件，注意需要保证上文中说的两个签名是一致的。然后就可以把这个 .app 上传到个人网站或者 Github 上供人下载使用了。<br><img src="http://upload-images.jianshu.io/upload_images/698554-5202f8ddea721d38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=".app 文件"></p>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>当我们下载好了一个 .app 格式的插件之后，直接双击这个 .app 文件，然后在 系统偏好设置-&gt; 扩展 -&gt; Xcode Source Editor Extension 勾选该插件，最后重启 Xcode 就可以在 Editor 菜单中找到该插件了。<br><img src="http://upload-images.jianshu.io/upload_images/698554-b35bafce22cccf86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="勾选插件"></p>
+<p>还可以在 Xcode 中为插件的菜单项设置快捷键。<br><img src="http://upload-images.jianshu.io/upload_images/698554-d5f2a3622205f490.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="设置快键键"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>至少现有的 Xcode Source Editor Extension 还是比较受限的，接口少的可怜，可想象的空间不是很多，大部分之前第三方插件能做的事情都没办法完成了🤷‍♀️。还是默默希望 Apple 能以更加开放的姿态，提供更多的接口给开发者，Xcode 没办法满足所有人的喜好，起码，能让喜欢折腾的人把它变得更好 :-D</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/19/iOS表情键盘的完整实现/" rel="next" title="iOS表情键盘的完整实现">
+                <i class="fa fa-chevron-left"></i> iOS表情键盘的完整实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/02/01/格式化Import/"
+           data-title="Source Editor Extension — Xcode 格式化 Import 的插件" data-url="http://yoursite.com/2018/02/01/格式化Import/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="ruanpapa & 又吉君" />
+          <p class="site-author-name" itemprop="name">ruanpapa & 又吉君</p>
+          <p class="site-description motion-element" itemprop="description">ruanpapa和又吉君写字的地方</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/VernonVan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建插件"><span class="nav-number">2.</span> <span class="nav-text">创建插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关键概念"><span class="nav-number">3.</span> <span class="nav-text">关键概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现步骤"><span class="nav-number">4.</span> <span class="nav-text">实现步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分发"><span class="nav-number">5.</span> <span class="nav-text">分发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#打包"><span class="nav-number">5.0.1.</span> <span class="nav-text">打包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装"><span class="nav-number">5.0.2.</span> <span class="nav-text">安装</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruanpapa & 又吉君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"vernonvan"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fRSRDUvIyCVcsgLOHArGl58q-gzGzoHsz", "0mGpmjuTsGuu9JEKGaU6YX9j");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
