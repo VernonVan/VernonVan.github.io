@@ -1,5 +1,5 @@
 ---
-title: 翻译用LLDB调试Swift代码
+title: [翻译]用 LLDB 调试 Swift 代码
 date: 2018-02-06 14:41:38
 tags:
 - iOS
