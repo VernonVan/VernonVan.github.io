@@ -8,14 +8,13 @@ categories:
 - ruanpapa--技术贴
 ---
 
-> - 原文地址：[Debugging Swift code with LLDB](https://medium.com/flawless-app-stories/debugging-swift-code-with-lldb-b30c5cf2fd49)
-> - 原文作者：[Ahmed Sulaiman](https://medium.com/@ahmedsulaiman?source=post_header_lockup)
-
-
+> * 原文地址：[Debugging Swift code with LLDB](https://medium.com/flawless-app-stories/debugging-swift-code-with-lldb-b30c5cf2fd49)
+> * 原文作者：[Ahmed Sulaiman](https://medium.com/@ahmedsulaiman?source=post_header_lockup)
 
 # 用 LLDB 调试 Swift 代码
 
-![](https://cdn-images-1.medium.com/max/2000/1*_o1ATofHFOE2zlbbPSFz-Q.png)
+![](http://upload-images.jianshu.io/upload_images/698554-035b0df85ea54d32.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 作为工程师，我们花了差不多 70% 的时间在调试上，剩下的 20% 用来思考架构以及和组员沟通，仅仅只有 10% 的时间是真的在写代码的。
 
@@ -38,7 +37,8 @@ LLDB 是一个庞大的工具，内置了很多有用的命令。我不会全部
 
 我还准备好了有用的 LLDB 命令说明和实例的表格，有需要的可以把它贴在 Mac 上面记住这些命令 🙂
 
-![](https://cdn-images-1.medium.com/max/800/1*bDt6SNjK1QN9Tfz-roasDg.png)
+![](http://upload-images.jianshu.io/upload_images/698554-4425e8ad483d1e91.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 通过这条链接下载全尺寸的版本 —  [https://www.dropbox.com/s/9sv67e7f2repbpb/lldb-commands-map.png?dl=0](https://www.dropbox.com/s/9sv67e7f2repbpb/lldb-commands-map.png?dl=0)
 
@@ -48,17 +48,20 @@ LLDB 是一个庞大的工具，内置了很多有用的命令。我不会全部
 
 命令：`expression`, `e`, `print`, `po`, `p`
 
-![](https://cdn-images-1.medium.com/max/1000/1*HcuIHN3WucfxG2Mk80wldw.png)
+![](http://upload-images.jianshu.io/upload_images/698554-28e3583bcef761ec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 调试器的一个基础功能就是获取和修改变量的值。这就是 `expression` 或者 `e` 被创造的原因（当然他们还有更高级的功能）。您可以简单的在运行时执行任何表达式或命令。
 
 假设你现在正在调试方法 `valueOfLifeWithoutSumOf()` ：对两个数求和，再用42去减得到结果。
 
-![](https://cdn-images-1.medium.com/max/800/1*ZRG-coIMk9udSc4edkMO6w.png)
+![](http://upload-images.jianshu.io/upload_images/698554-f788753308492216.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 继续假设你一直得到错误的结果并且你并不知道是什么原因。所以你可以做以下的事来找到问题：
 
-![](https://cdn-images-1.medium.com/max/800/1*LOFplcSqjYiO2BAjPi--4A.png)
+![](http://upload-images.jianshu.io/upload_images/698554-ca27db839bd80a19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 或者。。。使用 LLDB 表达式在运行时修改值才是更好的方法，同时可以找出问题是在哪里出现的。首先，在你感兴趣的地方设置一个断点，然后运行你的应用。
 
@@ -74,7 +77,8 @@ LLDB 是一个庞大的工具，内置了很多有用的命令。我不会全部
 (lldb) e <expression>
 ```
 
-![](https://cdn-images-1.medium.com/max/800/1*MCBw_pKgO2N5uPZKYmS0fQ.png)
+![](http://upload-images.jianshu.io/upload_images/698554-42790260c5498fe3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 ```
 (lldb) e sum 
@@ -140,7 +144,8 @@ LLDB 是一个庞大的工具，内置了很多有用的命令。我不会全部
 
 并不是很有描述性，不是吗？为了获取更加可阅读的描述，你自定义的类必须遵循 `CustomStringConvertible` 协议，同时实现 `var description: String { return ...}` 属性。接下来只需要用 `po` 就能返回可读的描述。
 
-![](https://cdn-images-1.medium.com/max/1000/1*v1JRHrSQmGIOkEUiQ5CZXA.png)
+![](http://upload-images.jianshu.io/upload_images/698554-67b11fbfba92f9c8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 在本节的开始，我也提到了 `print` 命令。基本上 `print <expression/variable>` 就等同于 `expression -- <expression/variable>`。但是 `print` 命令不能带任何标志或者额外的参数。
 
@@ -150,7 +155,8 @@ LLDB 是一个庞大的工具，内置了很多有用的命令。我不会全部
 
 `bugreport`, `frame`, `language`
 
-![](https://cdn-images-1.medium.com/max/1000/1*1OpRvgpxYDjA5ZeEpbh55Q.png)
+![](http://upload-images.jianshu.io/upload_images/698554-b6780919d5f067a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 你是否经常复制粘贴崩溃日志到任务管理器中方便稍后能考虑这个问题吗？LLDB 提供了一个很好用的命令叫 `bugreport`，这个命令能生成当前应用状态的完整报告。在你偶然触发某些问题但是想在稍后再解决它时这个命令就会很有帮助了。为了能恢复应用的状态，你可以使用 `bugreport` 生成报告。 
 
@@ -160,14 +166,16 @@ LLDB 是一个庞大的工具，内置了很多有用的命令。我不会全部
 
 最终的报告看起来就像下面截图中的例子一样：
 
-![](https://cdn-images-1.medium.com/max/1000/1*ziOW_lKhI6cBgGHl204kDg.png)
-
+![](http://upload-images.jianshu.io/upload_images/698554-f8a7604c35151d5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 `bugreport` 命令输出的示例。
 
-![](https://cdn-images-1.medium.com/max/1000/1*05j2Rp0t2hWAHsCW3tReqg.png)
+
+![](http://upload-images.jianshu.io/upload_images/698554-2179c17fefec7742.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 假设你想要获取当前线程的当前栈帧的概述，`frame` 命令可以帮你完成：
 
-![](https://cdn-images-1.medium.com/max/800/1*nAyd2l2m679XpH_In968YQ.png)
+![](http://upload-images.jianshu.io/upload_images/698554-5207a680ff245ddf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 使用下面的代码片段来快速获取当前地址以及当前的环境条件：
 
@@ -179,7 +187,8 @@ frame #0: 0x000000010bbe4b4d LLDB-Debugger-Exploration`ViewController.valueOfLif
 
 这些信息在本文后面将要说到的断点管理中非常有用。
 
-![](https://cdn-images-1.medium.com/max/1000/1*uLXBPbMvpDGU3Y9ElPQPsA.png)
+![](http://upload-images.jianshu.io/upload_images/698554-2b16ad60aed4e6af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 LLDB 有几个指定语言的命令，包括C++，Objective-C，Swift 和 RenderScript。在这篇文章中，我们重点关注 Swift。这是两个命令：`demangle` 和 `refcount`。
 
@@ -203,7 +212,8 @@ refcount data: (strong = 4, weak = 0)
 
 这节是我最喜欢的一节，因为在 LLDB 使用这几个命令（尤其是 `breakpoint` 命令），你可以在调试的时候使很多常规任务变得自动化，这样就能大大加快你的调试工作。
 
-![](https://cdn-images-1.medium.com/max/1000/1*mLGvusUvwDjWnuRGIaM6zw.png)
+![](http://upload-images.jianshu.io/upload_images/698554-190d8c7f7600ae0c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 通过 `process` 基本上你就可以控制调试的过程了，还能链接到特定的 target 或者停止调试器。 但是因为 Xcode 已经自动地帮我们做好了这个工作了（Xcode 在任何时候运行一个 target 时都会连接 LLDB）。我不会在这儿讲太多，你可以在这篇 Apple 的指南中阅读一下如何用终端连接到一个 target — [“Using LLDB as a Standalone Debugger”](https://developer.apple.com/library/content/documentation/IDEs/Conceptual/gdb_to_lldb_transition_guide/document/lldb-terminal-workflow-tutorial.html)。
 
@@ -234,9 +244,10 @@ frame #0: 0x000000010bbe4889 LLDB-Debugger-Exploration`ViewController.viewDidLoa
 
 这个命令等同于 Xcode 调试器工具栏上的”continue“按钮：
 
-![](https://cdn-images-1.medium.com/max/1600/1*655uraZK-VpJeVu6T_yp1w.png)
+![](http://upload-images.jianshu.io/upload_images/698554-8d3a7affc384f574.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-![](https://cdn-images-1.medium.com/max/1000/1*gv020i3Uihl0JCxg4D6FyQ.png)
+![](http://upload-images.jianshu.io/upload_images/698554-779f316d847a475c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 `breakpoint` 命令允许你用任何可能的方式操作断点。我们跳过最显而易见的命令：`breakpoint enable`, `breakpoint disable` 和 `breakpoint delete`。
 
@@ -350,11 +361,11 @@ Process 36863 resuming
 Command #3 'continue' continued the target.
 ```
 
-![](https://cdn-images-1.medium.com/max/1000/1*Hd2VNOZsUZ2Lsmk_oznRig.png)
+![](http://upload-images.jianshu.io/upload_images/698554-a1c3ec912e68ba8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 通过 `thread` 命令和它的子命令，你可以完全操控执行流程：`step-over`, `step-in`, `step-out` 和 `continue`。这些命令等同于 Xcode 调试器工具栏上的流程控制按钮。
 
-![](https://cdn-images-1.medium.com/max/800/1*_CILKjcJsdVco-hG9rDmhg.png)
+![](http://upload-images.jianshu.io/upload_images/698554-0dfdf39bff20db4d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 LLDB 同样也对这些特殊的命令预先定义好了快捷方式：
 
@@ -398,7 +409,8 @@ Process 50693 stopped
 
 `command`, `platform`, `gui`
 
-![](https://cdn-images-1.medium.com/max/1000/1*X9Dl7gaVB1elSpD8WycZGA.png)
+![](http://upload-images.jianshu.io/upload_images/698554-93fdf48e5daca771.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 在 LLDB 中你可以找到一个命令管理其他的命令，听起来很奇怪，但实际上它是非常有用的小工具。首先，它允许你从文件中执行一些 LLDB 命令，这样你就可以创建一个储存着一些实用命令的文件，然后就能立刻允许这些命令，就像是单个命令那样。这是所说的文件的简单例子：
 
@@ -450,7 +462,8 @@ The "print_hello" python command has been installed and is ready for use.
 Hello Debugger!
 ```
 
-![](https://cdn-images-1.medium.com/max/1000/1*6fRizbW5TQ02_DzHnUinzg.png)
+![](http://upload-images.jianshu.io/upload_images/698554-463b54c539c5eb64.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 你可以使用 `status` 子命令来快速检查当前的环境信息，`status` 会告诉你：SDK 路径、处理器的架构、操作系统版本甚至是该 SDK 可支持的设备的列表。
 
@@ -471,10 +484,10 @@ CD516CF7-2AE7-4127-92DF-F536FE56BA22: iPhone 5
 0D76F30F-2332-4E0C-9F00-B86F009D59A3: iPhone 5s
 3084003F-7626-462A-825B-193E6E5B9AA7: iPhone 6
 ...
-
 ```
 
-![](https://cdn-images-1.medium.com/max/1000/1*S914ih9-vrEoXKllCJpl0g.png)
+![](http://upload-images.jianshu.io/upload_images/698554-7ac0c7f2bf73cecd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 你不能在 Xcode 中使用 LLDB GUI 模式，但你总是可以从终端使用（LLDB GUI 模式）。
 
@@ -482,14 +495,11 @@ CD516CF7-2AE7-4127-92DF-F536FE56BA22: iPhone 5
 (lldb) gui
 
 // 如果你试着在 Xcode 中执行这个 gui 命令的话，你将会看到这个错误：the gui command requires an interactive terminal。
-
 ```
 
-![](https://cdn-images-1.medium.com/max/800/1*iN9X46pAI6cDv-ZL5v4L-w.png)
+![](http://upload-images.jianshu.io/upload_images/698554-5d99e8dfc0af41df.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 这就是 LLDB GUI 模式看起来的样子。
-
-
 
 ### 结论：
 
@@ -507,4 +517,3 @@ CD516CF7-2AE7-4127-92DF-F536FE56BA22: iPhone 5
 - [WWDC14 Advanced Swift Debugging in LLDB](https://developer.apple.com/videos/play/wwdc2014/410/) — 关于在 LLDB 中用 Swift 调试的一篇不错的概述，也讲了 LLDB 如何通过内建的方法和特性实现完整的调试操作，来帮你变得更加高效。
 - [Introduction To LLDB Python Scripting](http://www.fabianguerra.com/ios/introduction-to-lldb-python-scripting/) — 这篇介绍 LLDB Python 脚本的指南能让你快速上手。
 - [Dancing in the Debugger. A Waltz with LLDB](https://www.objc.io/issues/19-debugging/lldb-debugging)  — 对 LLDB 一些基础知识的介绍，有些知识有点过时了（比如说 `(lldb) thread return` 命令）。遗憾的是，它不能直接用于 Swift，因为它会对引用计数带了一些潜在的隐患。但是，这仍然是你开始 LLDB 之旅不错的文章。
-
