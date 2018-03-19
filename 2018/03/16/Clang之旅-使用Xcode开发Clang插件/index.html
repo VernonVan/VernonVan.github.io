@@ -107,7 +107,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-4ad812d07429b0e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-e50bcd49a7356985.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-de614d7d87c219d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-19T03:05:48.263Z">
+<meta property="og:updated_time" content="2018-03-19T03:07:10.729Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Clang 之旅--使用 Xcode 开发 Clang 插件">
 <meta name="twitter:description" content="前言最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。
@@ -408,7 +408,7 @@
 <h3 id="编写你的第一个插件"><a href="#编写你的第一个插件" class="headerlink" title="编写你的第一个插件"></a>编写你的第一个插件</h3><p>这个插件实现的功能就是打印语法树上所有节点的类名以及父类名，创建 Clang 插件的整体步骤如下图：</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/698554-214742ce207ea7ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="创建插件.png"></p>
 <ol>
-<li>首先修改源代码目录 /opt/llvm/llvm/tools/clang/tools 下的 CMakeLists.txt 文件，添加一个新的编译目标，直接在 CMakeLists.txt 的最后面添加上一行 add_clang_subdirectory(MyPlugin)，如下图：</li>
+<li>首先修改源代码目录 /opt/llvm/llvm/tools/clang/tools 下的 CMakeLists.txt 文件，添加一个新的编译目标，直接在 CMakeLists.txt 的最后面添加上一行，如下图：</li>
 </ol>
 <p><img src="https://upload-images.jianshu.io/upload_images/698554-dcfb0c32644a3731.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="添加新的编译目标.png"></p>
 <ol>

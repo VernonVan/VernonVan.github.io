@@ -395,7 +395,7 @@
 <h3 id="编写你的第一个插件"><a href="#编写你的第一个插件" class="headerlink" title="编写你的第一个插件"></a>编写你的第一个插件</h3><p>这个插件实现的功能就是打印语法树上所有节点的类名以及父类名，创建 Clang 插件的整体步骤如下图：</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/698554-214742ce207ea7ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="创建插件.png"></p>
 <ol>
-<li>首先修改源代码目录 /opt/llvm/llvm/tools/clang/tools 下的 CMakeLists.txt 文件，添加一个新的编译目标，直接在 CMakeLists.txt 的最后面添加上一行 add_clang_subdirectory(MyPlugin)，如下图：</li>
+<li>首先修改源代码目录 /opt/llvm/llvm/tools/clang/tools 下的 CMakeLists.txt 文件，添加一个新的编译目标，直接在 CMakeLists.txt 的最后面添加上一行，如下图：</li>
 </ol>
 <p><img src="https://upload-images.jianshu.io/upload_images/698554-dcfb0c32644a3731.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="添加新的编译目标.png"></p>
 <ol>
