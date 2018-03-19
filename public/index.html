@@ -251,6 +251,236 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/16/Clang之旅-使用Xcode开发Clang插件/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="ruanpapa & 又吉君">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/03/16/Clang之旅-使用Xcode开发Clang插件/" itemprop="url">
+                  Clang 之旅--使用 Xcode 开发 Clang 插件
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-16T14:44:05+08:00">
+                2018-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
+                    <span itemprop="name">ruanpapa--技术贴</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/16/Clang之旅-使用Xcode开发Clang插件/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/16/Clang之旅-使用Xcode开发Clang插件/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/03/16/Clang之旅-使用Xcode开发Clang插件/" class="leancloud_visitors" data-flag-title="Clang 之旅--使用 Xcode 开发 Clang 插件">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。</p>
+<p>我打算将 Clang 的研究心得分为几篇文章来写，这是 Clang 之旅的第一篇，主要讲如何用 Xcode 编译 Clang，以及实现一个简单的 Clang 插件并挂载到 Xcode 中参与编译流程，算是进入 Clang 的门槛。只是，这门槛就狠狠地让我吃了苦头，Google 找到好几篇博客讲怎么编译 Clang 的，但是也有一些年头了，版本比较旧，编译出来的 Clang 不能运行在现在的系统上；还有一些写的比较含糊，漏了某些关键步骤，导致花了好几个小时跟着教程做下来最后还是一堆 error；而且试错的成本还是比较高的，下载的源码有1G多（考虑从 Github 下载的速度🙄，需要挂个代理），完整编译出来有20G左右，我的15款 Macbook Pro 大概需要疯狂编译2个小时……如果不能接受这些的话，还是别尝试了，很遗憾，你连见到 Clang 真容的机会都没有┑(￣Д ￣)┍</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-49318ad53d98d6ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="llvm大小"></p>
+<h3 id="编译源码"><a href="#编译源码" class="headerlink" title="编译源码"></a>编译源码</h3><h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p>Clang 需要用 CMake 来编译，CMake 的安装方法可以参考这篇文章：<a href="https://www.jianshu.com/p/7466c85d5d6b" target="_blank" rel="external">Mac 安装 CMake &amp; CMake Command Line Tools</a>，建议对 CMake 完全不了解的同学可以先补充一点 CMake 的基本知识，这样能更容易理解接下来要做的事情，CMake 的入门知识可以参考：<a href="http://www.hahack.com/codes/cmake/" target="_blank" rel="external">CMake 入门实战</a></p>
+<h4 id="下载源码"><a href="#下载源码" class="headerlink" title="下载源码"></a>下载源码</h4><p>首先创建 LLVM 的源码路径及编译路径：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cd /opt</div><div class="line">sudo mkdir llvm</div><div class="line">sudo chown `whoami` llvm	// 将 llvm 目录的所有者指定为当前用户</div><div class="line">cd llvm</div><div class="line">export LLVM_HOME=`pwd`		// 设置当前目录(/opt/llvm)为 LLVM_HOME 目录</div></pre></td></tr></table></figure>
+<p>接下来从 Github clone 源代码（注意这几条语句中的 release_60，在当前时间2018.3.18时，我试过了 release_33、release_39，编译出来的 Clang 插件在运行的时候都会报 NSUUID 的 Nullability 错误，应该是这些版本不支持 Objective-C 后来加的 Nullability 特性，所以我下载了当前最新的 release_60 分支。一般来说，最新分支是兼容已有特性的，所以优先下载最新分支，分支查看可以参照下图）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">git clone -b release_60 git@github.com:llvm-mirror/llvm.git llvm</div><div class="line">git clone -b release_60 git@github.com:llvm-mirror/clang.git llvm/tools/clang</div><div class="line">git clone -b release_60 git@github.com:llvm-mirror/clang-tools-extra.git llvm/tools/clang/tools/extra</div><div class="line">git clone -b release_60 git@github.com:llvm-mirror/compiler-rt.git llvm/projects/compiler-rt</div></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-5e54bd18bac5a151.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="llvm最新分支.png"></p>
+<h4 id="编译源码-1"><a href="#编译源码-1" class="headerlink" title="编译源码"></a>编译源码</h4><p>生成 Xcode 工程（也可以直接用命令行编译，不过大家平时可能看习惯了 Xcode 工程，所以用 Xcode 编译比较习惯）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mkdir llvm_build; cd llvm_build</div><div class="line">cmake -G Xcode ../llvm -DCMAKE_BUILD_TYPE:STRING=MinSizeRel</div></pre></td></tr></table></figure>
+<p>生成的文件如下：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-975fe9e218257288.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Xcode工程.png"></p>
+<p>打开 Xcode 工程，选择自动创建 Schemes：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-dd7980d5fe52b689.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="自动创建Schemes.png"></p>
+<p>然后编译 Clang 和 libClang（可以随时终止编译，再次点击编译会从上次停止的地方继续进行）：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-cad3858632e8185b.JPG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="编译Clang和libClang"></p>
+<p>这里可能需要1个多小时才能完成编译，如无意外，编译成功！</p>
+<h3 id="编写你的第一个插件"><a href="#编写你的第一个插件" class="headerlink" title="编写你的第一个插件"></a>编写你的第一个插件</h3><p>这个插件实现的功能就是打印语法树上所有节点的类名以及父类名，创建 Clang 插件的整体步骤如下图：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-214742ce207ea7ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="创建插件.png"></p>
+<p>首先修改源代码目录 /opt/llvm/llvm/tools/clang/tools 下的 CMakeLists.txt 文件，添加一个新的编译目标，直接在 CMakeLists.txt 的最后面添加上一行，如下图：<br><img src="https://upload-images.jianshu.io/upload_images/698554-dcfb0c32644a3731.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="添加新的编译目标.png"></p>
+<p>然后在 tools 目录下添加 MyPlugin 文件夹，文件夹里面新增两个文件 CMakeLists.txt 和 MyPlugin.cpp，这里先不讲解具体文件中的内容，目的是想让插件跑起来，看到运行效果。</p>
+<p>   CMakeLists.txt 文件如下：</p>
+   <figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">add_llvm_loadable_module(MyPlugin </div><div class="line">MyPlugin.cpp</div><div class="line">PLUGIN_TOOL clang</div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">if</span>(LLVM_ENABLE_PLUGINS <span class="keyword">AND</span> (WIN32 <span class="keyword">OR</span> CYGWIN))</div><div class="line">  <span class="keyword">target_link_libraries</span>(MyPlugin PRIVATE</div><div class="line">    clangAST</div><div class="line">    clangBasic</div><div class="line">    clangFrontend</div><div class="line">    clangLex</div><div class="line">    LLVMSupport</div><div class="line">    )</div><div class="line"><span class="keyword">endif</span>()</div></pre></td></tr></table></figure>
+<p>   MyPlugin.cpp 文件如下：</p>
+   <figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"clang/AST/AST.h"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"clang/AST/ASTConsumer.h"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"clang/AST/RecursiveASTVisitor.h"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"clang/Frontend/CompilerInstance.h"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"clang/Frontend/FrontendPluginRegistry.h"</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> clang;</div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</div><div class="line"><span class="keyword">namespace</span> MyPlugin</div><div class="line">&#123;</div><div class="line">    <span class="keyword">class</span> MyASTVisitor: <span class="keyword">public</span></div><div class="line">    RecursiveASTVisitor &lt; MyASTVisitor &gt;</div><div class="line">    &#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">        ASTContext *context;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">        <span class="function"><span class="keyword">void</span> <span class="title">setContext</span><span class="params">(ASTContext &amp;context)</span></span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">this</span>-&gt;context = &amp;context;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">bool</span> <span class="title">VisitDecl</span><span class="params">(Decl *decl)</span></span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">if</span> (isa &lt; ObjCInterfaceDecl &gt; (decl)) &#123;</div><div class="line">                ObjCInterfaceDecl *interDecl = (ObjCInterfaceDecl *)decl;</div><div class="line">                <span class="keyword">if</span> (interDecl-&gt;getSuperClass()) &#123;</div><div class="line">                    <span class="built_in">string</span> interName = interDecl-&gt;getNameAsString();</div><div class="line">                    <span class="built_in">string</span> superClassName = interDecl-&gt;getSuperClass()-&gt;getNameAsString();</div><div class="line"></div><div class="line">                    <span class="built_in">cout</span> &lt;&lt; <span class="string">"-------- ClassName:"</span> &lt;&lt; interName &lt;&lt; <span class="string">" superClassName:"</span> &lt;&lt; superClassName &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    </div><div class="line">    <span class="keyword">class</span> MyASTConsumer: <span class="keyword">public</span> ASTConsumer</div><div class="line">    &#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">        MyASTVisitor visitor;</div><div class="line">        <span class="function"><span class="keyword">void</span> <span class="title">HandleTranslationUnit</span><span class="params">(ASTContext &amp;context)</span></span></div><div class="line">        &#123;</div><div class="line">            visitor.setContext(context);</div><div class="line">            visitor.TraverseDecl(context.getTranslationUnitDecl());</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    <span class="keyword">class</span> MyASTAction: <span class="keyword">public</span> PluginASTAction</div><div class="line">    &#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">        <span class="built_in">unique_ptr</span> &lt; ASTConsumer &gt; CreateASTConsumer(CompilerInstance &amp; Compiler, StringRef InFile) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="built_in">unique_ptr</span> &lt; MyASTConsumer &gt; (<span class="keyword">new</span> MyASTConsumer);</div><div class="line">        &#125;</div><div class="line">        <span class="function"><span class="keyword">bool</span> <span class="title">ParseArgs</span><span class="params">(<span class="keyword">const</span> CompilerInstance &amp;CI, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span> &lt; <span class="built_in">std</span>::<span class="built_in">string</span> &gt;&amp; args)</span></span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">&#125;</div><div class="line"><span class="keyword">static</span> clang::FrontendPluginRegistry::Add</div><div class="line">&lt; MyPlugin::MyASTAction &gt; X(<span class="string">"MyPlugin"</span>,</div><div class="line">                            <span class="string">"MyPlugin desc"</span>);</div></pre></td></tr></table></figure>
+<p>再次在 llvm_build 目录下 CMake 一下</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cmake -G Xcode ../llvm -DCMAKE_BUILD_TYPE:<span class="keyword">STRING</span>=MinSizeRel</div></pre></td></tr></table></figure>
+<p>然后重新打开 LLVM.xcodeproj 工程，会发现多了一个 MyPlugin 的编译目标，选中进行编译。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-a1ec081353964edc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="编译myPlugin.png"></p>
+<p>编译成功之后，就可以得到一个 MyPlugin.dylib 的 Clang 插件了~为了方便，我将 MyPlugin.dylib 放在桌面上：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-3b17229fdf5192e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="MyPlugin插件.png"></p>
+<h3 id="使用插件"><a href="#使用插件" class="headerlink" title="使用插件"></a>使用插件</h3><h4 id="命令行中使用插件"><a href="#命令行中使用插件" class="headerlink" title="命令行中使用插件"></a>命令行中使用插件</h4><p>首先用命令行对单文件测试一下刚刚生成的 Clang 插件是否正确，新建一个测试用文件 test.m 放在桌面，test.m 如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">#import&lt;UIKit/UIKit.h&gt;</div><div class="line">@interface ViewController : UIViewController</div><div class="line">@end</div><div class="line">@implementation ViewController</div><div class="line">- (instancetype)init</div><div class="line">&#123;</div><div class="line">	if(self = [super init])&#123;</div><div class="line">	&#125;</div><div class="line">	return self;</div><div class="line">&#125;</div><div class="line">@end</div></pre></td></tr></table></figure>
+<p>现在我的 test.m 和 MyPlugin.dylib 都在桌面上了（当然也可以放在不同的目录下，只要在待会用到这两个文件的地方指定各自的绝对路径就行，这里是为了方便叙述）</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-5bd1c283af274180.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="文件结构"></p>
+<p>接着命令行 cd 到桌面，然后执行以下命令就可以看到结果了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/opt/llvm/llvm_build/Debug/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator11.2.sdk -Xclang -load -Xclang ./MyPlugin.dylib -Xclang -add-plugin -Xclang MyPlugin -c ./test.m</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：</p>
+<ol>
+<li><p>我编译出来的 clang 在 /opt/llvm/llvm_build/Debug/bin/clang 目录中，如果你与我的路径不一样则指定为你对应的路径</p>
+</li>
+<li><p>在我写这篇文章时 Xcode 版本是9.2，对应的是 iPhoneSimulator11.2.sdk，你需要进入该目录查看你的 sdk 版本</p>
+</li>
+</ol>
+</blockquote>
+<p>如无意外，命令行中会出现一大堆输出：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-0c3a4024f8974640.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="命令行输出"></p>
+<h4 id="Xcode-中使用插件"><a href="#Xcode-中使用插件" class="headerlink" title="Xcode 中使用插件"></a>Xcode 中使用插件</h4><p>接下来讲怎么样在 Xcode 使用我们刚刚编译出来的插件（随着 Xcode 变得封闭，插件挂载到 Xcode 上运行在未来的版本中可能会被禁止）。</p>
+<p>首先 hack Xcode，才能使 Xcode 指向我们自己编译的 Clang：</p>
+<p>下载 <a href="http://www.njiang.cn/uploads/2017/03/01/XcodeHacking.zip" target="_blank" rel="external">XcodeHacking.zip</a> 并解压，里面有 HackedBuildSystem.xcspec 和 HackedClang.xcplugin 两个文件，这里可能需要修改一下 HackedClang.xcplugin/Contents/Resources/HackedClang.xcspec 文件，将 ExecPath 的值修改为你编译出来的 Clang 的目录：<br><img src="https://upload-images.jianshu.io/upload_images/698554-cd4d800cbebe8e09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修改HackedClang.xcspec"></p>
+<p>然后 cd 到解压的 XcodeHacking 目录，将这两个文件用命令行移动到对应的目录下：</p>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo mv HackedClang.xcplugin `xcode-select -print-path`/../PlugIns/Xcode3Core.ideplugin/Contents/SharedSupport/Developer/Library/Xcode/Plug-ins</div><div class="line">sudo mv HackedBuildSystem.xcspec `xcode-select -print-path`/Platforms/iPhoneSimulator.platform/Developer/Library/Xcode/Specifications</div></pre></td></tr></table></figure>
+<p>   ​</p>
+<p>然后重启 Xcode，点击 Target 的 Build Settings，修改 Compiler for C/C++/Objective-C 项为 Clang LLVM Trunk（不进行第1步中 hack Xcode 操作的话是不会有这个选项的）</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-4ad812d07429b0e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Complier.png"></p>
+<p>然后修改 OTHER_CFLAGS 选项：<br><img src="https://upload-images.jianshu.io/upload_images/698554-e50bcd49a7356985.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="OTHER_CFLAGS.png"></p>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-Xclang -load -Xclang /Users/Vernon/Desktop/MyPlugin.dylib -Xclang -add-plugin -Xclang MyPlugin</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意</p>
+<ol>
+<li>将 /Users/Vernon/Desktop/MyPlugin.dylib 修改为你生成的插件对应的目录</li>
+<li>如果编译中出现一大堆系统库的 symbol not found 错误的话，可以在上述命令的最后手动指定你的 SDK 目录：-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator11.2.sdk</li>
+</ol>
+</blockquote>
+<p>最后编译你的项目，然后快捷键 Command+9 跳到 Show the Report navigator，选中刚刚的编译报告，注意下图中每个文件右上角都有可以点击展开的按钮，展开后就能看到我们插件的输出了（下图4为对应输出）。Nice~<br><img src="https://upload-images.jianshu.io/upload_images/698554-de614d7d87c219d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="查看结果"></p>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>文章不长，只是这看似简单的过程也花了我一个多星期的业余时间，写下这个系列文章一是为了记录自己这钻研的过程，以后也可查询，二是希望如果有人能看到这篇拙文可以省下一点时间，更快的踏进 LLVM 和 Clang 的世界探索。</p>
+<p>接下来会根据我的个人需求尝试给 Clang 添加自定义的 attribute，如果有所心得，会撰文分享，敬请期待~</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/《指数基金投资指南》读后感/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -392,145 +622,6 @@
 <p>当基金估值从低估回到正常估值的时候，我们就停止定投，转为持有基金，等到估值到了高估的时候，我们就可以分批卖出我们持有的基金。以沪深300指数为例，估值主要集中在10-18PE，低于10PE就是低估阶段，此时坚持定投；10-18PE为正常估值，持有基金；高于18PE就是高估阶段，分批卖出。具体哪些基金处于估值的哪个阶段，可以关注钉大的微信公众号，每个交易日更新估值数据。</p>
 <p>我个人还是比较看好这种方式的，也解决了之前普通定投的卖出止损等的一些问题。最后就是心态的问题，短期内要有拥抱下跌的准备，现在的下跌亏损意味着我们在低点多买入了份额，而这不正是很多人在回测复盘的时候想要做到的吗，千万不要被黎明前的黑暗所吓倒！</p>
 
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/01/Photos框架实现一个高性能的照片选择器/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="ruanpapa & 又吉君">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/03/01/Photos框架实现一个高性能的照片选择器/" itemprop="url">
-                  Photos框架实现一个高性能的照片选择器
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-01T11:16:17+08:00">
-                2018-03-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/01/Photos框架实现一个高性能的照片选择器/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/01/Photos框架实现一个高性能的照片选择器/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2018/03/01/Photos框架实现一个高性能的照片选择器/" class="leancloud_visitors" data-flag-title="Photos框架实现一个高性能的照片选择器">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数 </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
           
         
       
@@ -2454,7 +2545,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
