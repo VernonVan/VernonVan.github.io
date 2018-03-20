@@ -86,7 +86,7 @@ cmake -G Xcode ../llvm -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
 
 
 首先修改源代码目录 /opt/llvm/llvm/tools/clang/tools 下的 CMakeLists.txt 文件，添加一个新的编译目标，直接在 CMakeLists.txt 的最后面添加上一行，如下图：
-![添加新的编译目标.png](https://upload-images.jianshu.io/upload_images/698554-dcfb0c32644a3731.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![添加新的编译目标.png](https://upload-images.jianshu.io/upload_images/698554-db674e4e4ade824d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
 然后在 tools 目录下添加 MyPlugin 文件夹，文件夹里面新增两个文件 CMakeLists.txt 和 MyPlugin.cpp，这里先不讲解具体文件中的内容，目的是想让插件跑起来，看到运行效果。
