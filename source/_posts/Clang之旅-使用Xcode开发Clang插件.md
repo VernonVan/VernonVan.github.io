@@ -20,6 +20,12 @@ categories:
 
 
 
+Clang 之旅系列文章：
+[Clang 之旅--使用 Xcode 开发 Clang 插件](https://www.jianshu.com/p/e3f46d42643b)
+[Clang 之旅—[翻译]添加自定义的 attribute](https://www.jianshu.com/p/d277c42f4907)
+
+
+
 ### 编译源码
 
 #### 准备工作

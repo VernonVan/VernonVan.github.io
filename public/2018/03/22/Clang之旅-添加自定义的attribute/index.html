@@ -1,0 +1,899 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS,clang & llvm," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译官方文档中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Clang 之旅—[翻译]添加自定义的 attribute">
+<meta property="og:url" content="http://yoursite.com/2018/03/22/Clang之旅-添加自定义的attribute/index.html">
+<meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
+<meta property="og:description" content="前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译官方文档中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，">
+<meta property="og:updated_time" content="2018-04-17T02:44:23.998Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Clang 之旅—[翻译]添加自定义的 attribute">
+<meta name="twitter:description" content="前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译官方文档中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/22/Clang之旅-添加自定义的attribute/"/>
+
+
+
+
+
+  <title> Clang 之旅—[翻译]添加自定义的 attribute | ruanpapa和又吉君写字的地方 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">ruanpapa和又吉君写字的地方</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/Clang之旅-添加自定义的attribute/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="ruanpapa & 又吉君">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Clang 之旅—[翻译]添加自定义的 attribute
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-22T11:05:35+08:00">
+                2018-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
+                    <span itemprop="name">ruanpapa--技术贴</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/22/Clang之旅-添加自定义的attribute/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/22/Clang之旅-添加自定义的attribute/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/03/22/Clang之旅-添加自定义的attribute/" class="leancloud_visitors" data-flag-title="Clang 之旅—[翻译]添加自定义的 attribute">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译<a href="https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute" target="_blank" rel="external">官方文档</a>中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，涉及专有词汇比较多的原因，所以我会偏向意译多一点，试图用更加易懂的表达组织语言，也是加深自己的记忆吧。</p>
+<p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅—[翻译]添加自定义的 attribute</a></p>
+<h2 id="怎样添加-attribute"><a href="#怎样添加-attribute" class="headerlink" title="怎样添加 attribute"></a>怎样添加 attribute</h2><p>attribute 是一种可以附加到程序结构中的数据形式，允许开发人员传递信息给编译器来实现各种需求。例如，attribute 可以用来改变在程序构造时生成的代码，或者用来提供额外的信息给静态分析。本文档讲解如何添加一个自定义的 attribute 到 Clang 中。现有 attribute 列表的文档可以在<a href="https://clang.llvm.org/docs/AttributeReference.html" target="_blank" rel="external">这里</a>找到。</p>
+<h3 id="attribute-基础知识"><a href="#attribute-基础知识" class="headerlink" title="attribute 基础知识"></a>attribute 基础知识</h3><p>Clang 中的 attribute 涉及到三个阶段：解析 attribute 、从已解析的 attribute 转换成语法树上的 attribute、对 attribute 进行处理。</p>
+<p>attribute 的解析可以采用多种语法形式，例如 GNU、C++ 11 和 Microsoft 形式，还由 attribute 提供的其他信息来确定。最终，解析好的 attribute 用一个 <code>AttributeList</code> 对象来表示。这些解析好的 attribute 会链成一个 attribute 链，加到声明或者定义上。attribtue 的解析是由 Clang 自动完成的，除了那些关键字 attribute。关键字的解析和 <code>AttributeList</code> 对象的生成必须由我们手动完成。</p>
+<p>最后，<code>Sema::ProcessDeclAttributeList()</code> 带着 <code>Decl</code> 类型和 <code>AttributeList</code> 类型的参数被调用，此时解析好的 attribute 就会被转化成语法树上的 attribute。这个处理依赖于 attribute 的属性定义和语义要求。最后的结果就是语法树上的 attribute 对象可以从 <code>Decl</code> 对象获取到，也就是通过调用 <code>Decl::getAttr&lt;T&gt;()</code> 来获取。</p>
+<p>语法树上的 attribute 的结构同样也受到 Attr.td 文件中的定义所限制。这个定义会自动生成 attribute 的实现所用到的功能，包括生成 <code>clang::Attr</code> 的子类、解析器所用到的信息和某些 attribute 自动进行的语义分析等等。</p>
+<h3 id="include-clang-Basic-Attr-td"><a href="#include-clang-Basic-Attr-td" class="headerlink" title="include/clang/Basic/Attr.td"></a>include/clang/Basic/Attr.td</h3><p>添加新的 attribute 到 Clang 的第一个步骤就是把其定义添加到 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/include/clang/Basic/Attr.td?view=markup" target="_blank" rel="external">include/clang/Basic/Attr.td</a>。这个定义必须从 <code>Attr</code> 或者其子类继承。大多数 attribute 会直接从 <code>InheritableAttr</code> 继承，<code>InheritableAttr</code> 指定了这个 attribute 可以通过它所关联的 <code>Decl</code> 稍后进行重声明。如果这个 attribute 是作用于类型而不是声明，那么这种 attribute 应该从 <code>TypeAttr</code> 派生，并且通常不会被赋予 AST 表示（注意本文档并不讲解生成类型所用的 attribute）。一个继承于 <code>IgnoredAttr</code> 的 attribute 会被解析，但是会在被使用的时候产生一个 “被忽略的属性” 的警告，这种处理方法在某个属性支持别的前端而不支持 Clang 的情况下是很有用的。</p>
+<p>这个定义能指定 attribute 的一些关键部分，比如 attribute 的名字、attribute 支持的拼写、attribute 的参数等等。<code>Attr</code> 类型中的大多数成员变量都不需要派生定义，缺省的就足够了。但是，每个 attribute 都需要至少指定 拼写列表、subject 列表和文档列表。</p>
+<h5 id="拼写"><a href="#拼写" class="headerlink" title="拼写"></a>拼写</h5><p>所有 attribute 都需要指定一个拼写列表，表示拼写 attribute 的方式。比如某个 attribute 可能会包含关键字拼写， C++11 拼写和 GNU 拼写。空的拼写列表也是允许的并且可能对隐式创建的 attribute 有用。以下是支持的拼写的表格：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">拼写</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">GNU</td>
+<td style="text-align:left">用 GNU 风格 <code>__attribute__((attr))</code> 语法和位置拼写</td>
+</tr>
+<tr>
+<td style="text-align:left">CXX11</td>
+<td style="text-align:left">用 C++ 风格 <code>[[attr]]</code> 语法拼写。如果该 attribute 是由 Clang 所使用的，那么应该设置命名空间为 <code>&quot;clang&quot;</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Declspec</td>
+<td style="text-align:left">用 Microsoft 风格 <code>__declspec(attr)</code> 语法拼写</td>
+</tr>
+<tr>
+<td style="text-align:left">Keyword</td>
+<td style="text-align:left">这个 attribute 用关键字的方式拼写，并且需要自定义解析</td>
+</tr>
+<tr>
+<td style="text-align:left">GCC</td>
+<td style="text-align:left">指定两种拼写：首先是 GNU 风格拼写；然后是 C++ 风格拼写，命名空间为 <code>gnu</code>。只能为支持 GCC 的 attribute 指定这个拼写。</td>
+</tr>
+<tr>
+<td style="text-align:left">Pragma</td>
+<td style="text-align:left">attribute 用 <code>#pragma</code> 的形式拼写，并且需要在预处理器中执行自定义的处理。如果该 attribute 是由 Clang 所使用的，那么应该设置命名空间为 <code>&quot;clang&quot;</code>。需要注意这个拼写并不能被用于声明语句中。</td>
+</tr>
+</tbody>
+</table>
+<h5 id="Subjects"><a href="#Subjects" class="headerlink" title="Subjects"></a>Subjects</h5><p>每个 attribute 都有一个或者多个 subject。如果 attribute 被使用到了一个不在 subject 列表上的 subject，就会自动显示诊断信息。 这个信息是警告还是错误是由 attribute 中的 <code>SubjectList</code> 决定的，默认的是警告。显示给用户的诊断信息将根据 subject 列表自动确定，但是也可以在 <code>SubjectList</code> 中指定自定义诊断参数。不符合 subject 列表导致的诊断信息要么是 <code>diag::warn_attribute_wrong_decl_type</code>，要么是 <code>diag::err_attribute_wrong_decl_type</code>。具体参数的枚举值可以从 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/include/clang/Sema/AttributeList.h?view=markup" target="_blank" rel="external">include/clang/Sema/AttributeList.h</a> 找到。如果先前未使用的 <code>Decl</code> 节点被添加到 <code>SubjectList</code> 中，则可能需要更新用于自动确定 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/utils/TableGen/ClangAttrEmitter.cpp?view=markup" target="_blank" rel="external">utils/TableGen/ClangAttrEmitter.cpp</a> 中的诊断参数的逻辑。</p>
+<p>所有在 SubjectList 中的 subject 要么是在 <code>DeclNodes.td</code> 中定义的 Decl 节点，要么就是在 <code>StmtNodes.td</code> 中定义的 statement 节点。不过，可以生成 <code>SubsetSubject</code> 对象来创建更加复杂的 subject。每个这样的对象都有一个它所属的基本对象（必须是一个 Decl 或 Stmt 节点，而不是一个 SubsetSubject 节点），还有一些自定义代码在确定某个 attribute 是否属于该对象时被调用。例如，一个 <code>NonBitField</code> SubsetSubject 关联到 <code>FieldDecl</code> 类，同时会测试给定的 FieldDecl 是否是一个位字段。当在 SubjectList 中指定了一个 SubsetSubject 时必须同时提供一个自定义的诊断信息参数。</p>
+<p>attribute 的 subject 列表会在 <code>HasCustomParsing</code> 设为 <code>1</code> 的情况下自动进行诊断检查。</p>
+<h5 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h5><p>所有的 attribute 都必须具有某种形式的文档。文档是通过每天运行的服务器端进程在公共服务器上生成的。通常来说，attribute 的文档是在 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/include/clang/Basic/AttdDocs.td?view=markup" target="_blank" rel="external">include/clang/Basic/AttrDocs.td</a> 中单独定义的，以文档属性命名。</p>
+<p>如果 attribute 不是通用的，或者是隐式创建的没有对应拼写的 attribuet，则可以将文档列表变量设置为 <code>Undocumented</code>。否则，该 attribute 应将其文档添加到 AttrDocs.td。</p>
+<p>文档属性是从 <code>Documentation</code> tablegen 类型继承而来的，所有的派生类型都必须创建一个文档类别和设置文档本身内容。此外，它还可以为 attribute 指定一个自定义的标题，否则会选择默认的标题。</p>
+<p>现在有四种预先定义好的文档类别：<code>DocCatFunction</code> 对应函数的 attribute，<code>DocCatVariable</code> 对应到变量的 attribute，<code>DocCatType</code> 对应类型的 attribute，<code>DocCatStmt</code> 对应声明的 attribute。自定义文档类别应该用于具有类似功能的 attribute 组。自定义类别非常适合用来为组中的 attribute 提供概述信息。</p>
+<p>文档内容（包括 attribute 的内容或者类别的内容）是用 reStructuredText（RST）格式写的。</p>
+<p>在编写该 attribute 的文档之后，应该对其在本地对其进行测试，以确保在服务器上生成文档不会有问题。本地测试需要重新构建 clang-tblgen。要生成 attribute 文档，请执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">clang-tblgen -gen-attr-docs -I /path/to/clang/include /path/to/clang/include/clang/Basic/Attr.td -o /path/to/clang/docs/AttributeReference.rst</div></pre></td></tr></table></figure>
+<p>在本地进行测试时，不要对 <code>AttributeReference.rst</code> 提交更改。该文件是由服务器自动生成的，并且对该文件所做的任何更改都将被覆盖。</p>
+<h5 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h5><p>attribute 可以选择指定可以传递给 attribute 的参数列表。attribute 的参数指定 attribute 的解析形式和语义形式。例如，如果 <code>Args</code> 是 <code>[StringArgument&lt;&quot;Arg1&quot;&gt;, IntArgument&lt;&quot;Arg2&quot;&gt;]</code>，那么 <code>__attribute__((myattribute(&quot;Hello&quot;, 3)))</code> 就是一个合法的使用方式；这个 attribute 在解析时要求有两个参数：一个 string 类型一个 integer 类型。</p>
+<p>每个参数都有个名字和一个用来指定这个参数是否为可选的标志。参数关联的 C++ 类型由参数定义类型确定。如果现有参数类型不足，则可以创建新类型，但需要修改 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/utils/TableGen/ClangAttrEmitter.cpp?view=markup" target="_blank" rel="external">utils/TableGen/ClangAttrEmitter.cpp</a> 才能正确支持该新类型。</p>
+<h5 id="其他属性"><a href="#其他属性" class="headerlink" title="其他属性"></a>其他属性</h5><p><code>Attr</code> 的定义还具有其他变量来控制 attribute 的行为。其中有很多是用于特殊用途的，超出了本文档的范围，但有一些还是值得提上一嘴的。</p>
+<p>如果 attribute 的解析形式更加复杂或者和语义形式不同，则可以将 <code>HasCustomParsing</code> 变量设置为 <code>1</code>，并且可以针对特殊情况修改 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/lib/Parse/ParseDecl.cpp?view=markup" target="_blank" rel="external">Parser::ParseGNUAttributeArgs()</a> 中的解析代码。请注意，这仅适用于具有 GNU 拼写的 attribute；__declspec 拼写的 attribute 现在是忽略这个标志的，并由 <code>Parser::ParseMicrosoftDeclSpec</code>  负责解析。 </p>
+<p>请注意，把 <code>HasCustomParsing</code> 设置为 <code>1</code> 将不再使用通用的 attribute 处理逻辑，需要额外的处理来确保该  attribute 能使用。</p>
+<p>如果该 attribute 不通过模板声明实例化，则将 <code>Clone</code> 成员变量设置为 0。默认情况下，所有的 attribute 都将通过模板进行实例化。</p>
+<p>不需要 AST 节点的 attribute 应该将 <code>ASTNode</code> 变量设置为 0 以避免污染 AST。请注意，从 <code>TypeAttr</code> 或 <code>IgnoredAttr</code> 继承的类都不会自动生成 AST 节点。所有其他属性默认会生成一个 AST 节点。该 AST 节点是 attribute 的语义表示。</p>
+<p><code>LangOpts</code> 变量指定了 attribute 所需的语言选项列表。例如，所有的 CUDA-specific 的 attribuet 都将 <code>LangOpts</code> 字段指定为 <code>[CUDA]</code>，并且当 CUDA 语言选项未启用时，会发出“attribute ignored”的警告诊断。由于语言选项不是自动生成的节点，因此必须手动创建新的语言选项，并应指定 <code>LangOptions</code> 类所使用的拼写。</p>
+<p>可以基于 attribute 的拼写列表为该 attribute 生成自定义的存取器。例如，如果某个 attribute 有两种不同的拼写：’foo’ 和 ‘bar’，则可以创建访问器：<code>[Accessor&lt;&quot;isFoo&quot;, [GNU&lt;&quot;Foo&quot;&gt;]&gt;, Accessor&lt;&quot;isBar&quot;,[GNU&lt;&quot;Bar&quot;&gt;]&gt;]</code>。这些存取器将在该 attribute 的语义形式上生成，不接受任何参数并返回一个布尔值。</p>
+<p>不需要自定义语义分析的 attribute 应该将 <code>SemaHandler</code> 变量设为 <code>0</code>。请注意，任何从 <code>IgnoredAttr</code> 继承的 attribute 都不会自动进行语义处理。所有其他 attribute 都使用默认的语义处理。没有语义处理的 attribute 都不会有解析好的 attribute <code>Kind</code> 枚举器。</p>
+<p>指定 Target 的 attribute 可能会与不同 Target 的 attribute 共用一个拼写。例如，ARM 和 msp430 Target 都有一个拼写为 <code>GNU&lt;&quot;interrupt&quot;&gt;</code> 的 attribute，但各自有不同的解析方式和语义要求。为了支持这个特性，继承自 <code>TargetSpecificAttribute</code> 的 attribute 可以指定 <code>ParseKind</code> 变量。这个变量在共用拼写的所有参数之间应该是相同的，并且对应于解析 attribute 的 <code>Kind</code> 的枚举器。这允许 attribute 共用一种解析类型，但具有不同的语义属性。例如，<code>AttributeList::AT_Interrupt</code> 是共用的解析类型，但 ARMInterruptAttr 和 MSP430InterruptAttr 是各自的语义属性。</p>
+<p>默认情况下，当声明为 merging attribute 时，该 attributes 不会被复制。但是，如果在此合并阶段中可以复制某个 attribute，那么将 <code>DuplicatesAllowedWhileMerging</code> 变量设置为 <code>1</code>，该 attribute 就会被合并。</p>
+<p>默认情况下，attribute 的参数在上下文中被解析。如果应该在上下文中解析 attribute 的参数（类似于解析 <code>sizeof</code> 表达式的参数的方式），请将 <code>ParseArgumentsAsUnevaluated</code> 设置为 <code>1</code>。</p>
+<h3 id="样板代码"><a href="#样板代码" class="headerlink" title="样板代码"></a>样板代码</h3><p>声明 attribute 的所有的语义处理都在文件 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/lib/Sema/SemaDeclAttr.cpp?view=markup" target="_blank" rel="external">lib/Sema/SemaDeclAttr.cpp</a> 中，并且通常都从 <code>ProcessDeclAttribute()</code> 函数开始。如果这个 attribute 是一个“简单的” attribute，也就是说这个 attribute 除了自动生成的内容之外不需要自定义的语义处理，那么就添加 <code>handleSimpleAttribute&lt;YourAttr&gt;(S, D, Attr);</code> 函数到 switch 语句中。否则，编写一个新的 <code>handleYourAttr()</code> 函数，并将其添加到 switch 语句中。不要直接在 <code>case</code> 语句中实现处理逻辑。</p>
+<p>除非 attribute 的定义中另有规定，否则将自动处理解析 attribute 的常见语义检查，包括诊断不属于给定 <code>Decl</code> 的解析的 attribute、确保传递正确的最小数量的参数等等。</p>
+<p>如果 attribute 要加上额外的警告，那么在 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/include/clang/Basic/DiagnosticGroups.td?view=markup" target="_blank" rel="external">include/clang/Basic/DiagnosticGroups.td</a> 文件中定义一个 <code>DiagGroup</code>。如果只有一个诊断信息的话，直接在 <a href="http://llvm.org/viewvc/llvm-project/cfe/trunk/include/clang/Basic/DiagnosticSemaKinds.td?view=markup" target="_blank" rel="external">DiagnosticSemaKinds.td</a> 文件中使用 <code>InGroup&lt;DiagGroup&lt;&quot;your-attribute&quot;&gt;&gt;</code> 也是可以的。</p>
+<p>所有为你自定义的 attribute 所生成的诊断信息，包括自动生成的（比如 subject 和参数个数），都应该有一个对应的测试用例。</p>
+<h3 id="语义处理"><a href="#语义处理" class="headerlink" title="语义处理"></a>语义处理</h3><p>大多数 attribute 被实现为对编译器有一定的影响。例如，修改生成代码的方式，或为分析过程添加额外的语义检查等，将 attribute 的定义和转换添加到该 attribute 的语义表示中，剩下的就是实现 attribute 的自定义逻辑。</p>
+<p>可以使用 <code>hasAttr&lt;T&gt;()</code> 方法来查询 <code>clang::Decl</code> 对象中是否有 attribute。可以使用 <code>getAttr&lt;T&gt;</code> 来获取一个指向 attribute 的指针。 </p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/clang-llvm/" rel="tag"># clang & llvm</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/16/Clang之旅-使用Xcode开发Clang插件/" rel="next" title="Clang 之旅--使用 Xcode 开发 Clang 插件">
+                <i class="fa fa-chevron-left"></i> Clang 之旅--使用 Xcode 开发 Clang 插件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/03/22/Clang之旅-添加自定义的attribute/"
+           data-title="Clang 之旅—[翻译]添加自定义的 attribute" data-url="http://yoursite.com/2018/03/22/Clang之旅-添加自定义的attribute/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="ruanpapa & 又吉君" />
+          <p class="site-author-name" itemprop="name">ruanpapa & 又吉君</p>
+          <p class="site-description motion-element" itemprop="description">ruanpapa和又吉君写字的地方</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/VernonVan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎样添加-attribute"><span class="nav-number"></span> <span class="nav-text">怎样添加 attribute</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#attribute-基础知识"><span class="nav-number">1.</span> <span class="nav-text">attribute 基础知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#include-clang-Basic-Attr-td"><span class="nav-number">2.</span> <span class="nav-text">include/clang/Basic/Attr.td</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#拼写"><span class="nav-number">2.0.1.</span> <span class="nav-text">拼写</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Subjects"><span class="nav-number">2.0.2.</span> <span class="nav-text">Subjects</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#文档"><span class="nav-number">2.0.3.</span> <span class="nav-text">文档</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#参数"><span class="nav-number">2.0.4.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他属性"><span class="nav-number">2.0.5.</span> <span class="nav-text">其他属性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#样板代码"><span class="nav-number">3.</span> <span class="nav-text">样板代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#语义处理"><span class="nav-number">4.</span> <span class="nav-text">语义处理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruanpapa & 又吉君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"vernonvan"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fRSRDUvIyCVcsgLOHArGl58q-gzGzoHsz", "0mGpmjuTsGuu9JEKGaU6YX9j");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
