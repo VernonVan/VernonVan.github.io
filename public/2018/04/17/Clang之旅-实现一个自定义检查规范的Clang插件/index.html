@@ -1,0 +1,896 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS,clang & llvm," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言在 Clang 之旅系列文章开篇的时候，我说到过自己接触 Clang 的直接原因就是想实现一个自定义的检查需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Clang 之旅--实现一个自定义检查规范的 Clang 插件">
+<meta property="og:url" content="http://yoursite.com/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/index.html">
+<meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
+<meta property="og:description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言在 Clang 之旅系列文章开篇的时候，我说到过自己接触 Clang 的直接原因就是想实现一个自定义的检查需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-c7aa746724799734.GIF?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-f509375dfc159afe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-3ece97359f29ec5e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-71f15a143a85a6e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-04-18T03:23:21.021Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Clang 之旅--实现一个自定义检查规范的 Clang 插件">
+<meta name="twitter:description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言在 Clang 之旅系列文章开篇的时候，我说到过自己接触 Clang 的直接原因就是想实现一个自定义的检查需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/698554-c7aa746724799734.GIF?imageMogr2/auto-orient/strip">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/"/>
+
+
+
+
+
+  <title> Clang 之旅--实现一个自定义检查规范的 Clang 插件 | ruanpapa和又吉君写字的地方 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">ruanpapa和又吉君写字的地方</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="ruanpapa & 又吉君">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Clang 之旅--实现一个自定义检查规范的 Clang 插件
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-17T15:55:23+08:00">
+                2018-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
+                    <span itemprop="name">ruanpapa--技术贴</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/" class="leancloud_visitors" data-flag-title="Clang 之旅--实现一个自定义检查规范的 Clang 插件">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅–[翻译]添加自定义的 attribute</a><br><a href="https://www.jianshu.com/p/c27b77f70616" target="_blank" rel="external">Clang 之旅–实现一个自定义检查规范的 Clang 插件</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 Clang 之旅系列文章<a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">开篇</a>的时候，我说到过自己接触 Clang 的直接原因就是想实现一个自定义的检查需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。现在我已经根据自己的需求完成了这个插件，这篇文章会讲解这个插件的实现思路，对应的代码在这里：<a href="https://github.com/VernonVan/SameTypeClangPlugin" target="_blank" rel="external">https://github.com/VernonVan/SameTypeClangPlugin</a></p>
+<h3 id="具化需求"><a href="#具化需求" class="headerlink" title="具化需求"></a>具化需求</h3><p>首先我先将需求具化一下，之前说的比较宽泛。</p>
+<p>试想我们有这么一个函数 <code>modelOfClass</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">- (__kindof NSObject *)modelOfClass:(Class)modelClass </div><div class="line">&#123;</div><div class="line">    if ([modelClass isKindOfClass:[NSString class]]) &#123;</div><div class="line">        return [[NSString alloc] init];</div><div class="line">    &#125; else if ([modelClass isKindOfClass:[NSArray class]]) &#123;</div><div class="line">        return [[NSArray alloc] init];</div><div class="line">    &#125;</div><div class="line">    return nil;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>modelOfClass</code> 接受一个 <code>Class</code> 类型的参数，然后会根据 <code>Class</code> 对应的类进行不同的操作，最终返回处理好的 <code>Class</code> 对应类的实例对象。我们用 <code>__kindof NSObject *</code> 返回值类型来保证返回的一定是 <code>NSObject</code> 或者其子类，能保证的也只有这样而已。但是，存在这样一种错误的调用方式，但是却能通过编译：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">@property (nonatomic, strong) NSString *myString;</div><div class="line">@property (nonatomic, strong) NSArray *myArray;</div><div class="line"></div><div class="line">- (void)someMethod</div><div class="line">&#123;</div><div class="line">    self.myString = [self modelOfClass:[NSString class]];</div><div class="line">    self.myArray = [self modelOfClass:[NSString class]];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以发现，<code>someMethod</code> 中有两行 <code>modelOfClass</code> 的函数调用。第一行调用是正确的，<code>NSString *</code> 类型的属性 <code>myString</code> 调用时传入的是 <code>[NSString class]</code>；第二行调用是错误的，<code>NSArray *</code> 类型的属性 <code>myArray</code> 调用时传入的是 <code>[NSString class]</code>。也就是说，在 Objective-C 语言中，并没有一种办法能够检查函数调用时参数类型和返回值类型是完全一致的。</p>
+<p>这个需求是从我所在公司的项目中抽象简化出来的，大家看不出来这个函数究竟是用来干什么的，可能会觉得这个需求并不常见，没有什么通用性。但是这篇文章希望读者看了之后能以小见大，举一反三，更重要的是学到怎么样使用通用的方式，根据自己的需求实现自定义检查规范的 Clang 插件。</p>
+<h3 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h3><p>我们来看看最终实现的效果：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-c7aa746724799734.GIF?imageMogr2/auto-orient/strip" alt="演示效果"></p>
+<p>最终实现了上面所说的类型检查，同时还给出了对应的修改方法（FixIt），点击修改就能改成正确的参数类型🎉🎉🎉 下面就来说说具体是怎么实现的。</p>
+<h3 id="抽象语法树（Abstract-syntax-tree）"><a href="#抽象语法树（Abstract-syntax-tree）" class="headerlink" title="抽象语法树（Abstract syntax tree）"></a>抽象语法树（Abstract syntax tree）</h3><p>抽象语法树，英文简称为 AST，是编译过程中语法分析阶段的产物，也是我们作为外部开发者与 Clang 进行交互的最重要的方式。所以我们最重要的就是学会怎么样阅读、分析语法树。</p>
+<p>在命令行中输入以下命令，打印 main.m 文件对应的语法树到命令行中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator11.3.sdk -fmodules -fsyntax-only -Xclang -ast-dump main.m</div></pre></td></tr></table></figure>
+<blockquote>
+<p>在我写这篇文章时 Xcode 版本是9.3，对应的是 iPhoneSimulator11.3.sdk，你需要进入该目录查看你的 sdk 版本，然后修改 -isysroot 命令后的 sdk 路径</p>
+</blockquote>
+<p>打印出来的语法树如下图：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-f509375dfc159afe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="AST"></p>
+<p>编译前端 Clang 首先进行词法分析（Lexical Analysis），把源文件的字符流拆分一个一个的 token；然后 token 进入语法分析（Semantic Analysis），将这些 token 组合成语法树。左边的缩进代表了语法树节点的从属关系，语法树上的每一个节点的名字都能在 Clang 源码中找到对应的类。</p>
+<p>从图中挑几个点来解释一下（对应图中的红色标注）：</p>
+<ol>
+<li><p><code>ObjCImplementationDecl</code> 节点代表了 Objective-C 类中的 <code>@implementation</code> 部分的内容</p>
+</li>
+<li><p><code>ObjCMethodDecl</code> 节点代表了 Objective-C 中的函数定义，我们在 Clang 源码中查看一下对应类的定义</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-3ece97359f29ec5e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ObjCMethodDecl"></p>
+<p>Clang 的文档注释可以说相当齐全了，<code>ObjCMethodDecl</code>  代表了一个类方法或者实例方法。所有的 <code>public:</code> 域中的方法都是我们可以用的，比如说  <code>Selector getSelector()</code> 可以获取该方法的 <code>Selector</code>，<code>ArrayRef&lt;ParmVarDecl*&gt; parameters()</code> 可以获取获取该方法的参数列表等等。</p>
+</li>
+<li><p>框中的语法块代表了源文件中 <code>self.myString = [self modelOfClass:[NSString class]];</code> 语句，<code>BinaryOperator</code> 代表了二元操作符（包括赋值的“=”），可以通过 <code>BinaryOperator</code> 类的 <code>Expr *getLHS()</code> 和 <code>Expr *getRHS()</code> 分别取得“=”左右两边的语句。</p>
+</li>
+</ol>
+<blockquote>
+<p>详细的 AST 树的分析可以查看官方的教程：<a href="http://clang.llvm.org/docs/IntroductionToTheClangAST.html" target="_blank" rel="external">http://clang.llvm.org/docs/IntroductionToTheClangAST.html</a></p>
+</blockquote>
+<p>那么多种的 AST 节点中应该怎么只获取自己感兴趣的节点呢？</p>
+<p>Clang 提供了 <code>ASTMatcher</code> 类供我们进行 AST 节点的查找过滤，有一篇专门解释罗列各种各样的 <code>ASTMatcher</code> 的<a href="http://clang.llvm.org/docs/LibASTMatchersReference.html" target="_blank" rel="external">官方文档</a>可以查看。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-71f15a143a85a6e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ASTMatcher"></p>
+<p>比如可以用 <code>objcPropertyDecl</code> 来匹配到 Objective-C 的类属性，<code>ASTMatcher</code> 可以用一种类似链式语法的方式将一系列的 Matcher 串起来，比如可以用 <code>cxxRecordDecl(unless(hasName(&quot;X&quot;)))</code> 来匹配到满足类名不为 <code>X</code> 的所有 C++ 类。</p>
+<blockquote>
+<p>具体的 ASTMatcher 的使用方法可以查看这篇教程：<a href="https://eli.thegreenplace.net/2014/07/29/ast-matchers-and-clang-refactoring-tools" target="_blank" rel="external">https://eli.thegreenplace.net/2014/07/29/ast-matchers-and-clang-refactoring-tools</a></p>
+</blockquote>
+<h3 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h3><p>基础知识铺垫完了，现在我们来拆解一下我们的需求。首先我们需要有一种方式标记需要进行这种检查的函数，总不至于所有函数调用我们都去检查一遍吧😹 这时候就可以想到可以通过 attribute 的方式标记函数！</p>
+<blockquote>
+<p>关于 attribute 的知识，可以查看孙源大神的这篇文章：<a href="https://blog.sunnyxx.com/2016/05/14/clang-attributes/" target="_blank" rel="external">Clang Attributes 黑魔法小记</a>，讲解了多种常见不常见的 attribute 的使用场景</p>
+<p>另外一篇就是官方关于如何在 Clang 中添加自定义的 attribute 的文档：<a href="https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute" target="_blank" rel="external">How to add an attribute</a>，我自己也翻译了这篇文档，请戳<a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">中文版</a>。</p>
+</blockquote>
+<p>这里不讲解怎么添加自定义的 attribute，比较简单，就是按最简单的模板添加的。添加完了之后，得在 <code>modelOfClass</code> 后面加上一句 <code>__attribute__((objc_same_type))</code>，代表 <code>modelOfClass</code> 在每次被调用时都会进行自定义的检查，这样才能出现上面演示效果图中的检查结果（objc_same_type 就是我所添加的 attribute 的名字）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">- (__kindof NSObject *)modelOfClass:(Class)modelClass __attribute__((objc_same_type))</div></pre></td></tr></table></figure>
+<p>#### </p>
+<p>具体该怎么检查呢？分成以下几个步骤：</p>
+<ol>
+<li>首先判断语法树上的节点是否是赋值语句（Clang 中用 <code>BinaryOperator</code> 表征赋值语句）。如果是，进入第 2 步</li>
+<li>用 <code>BinaryOperator</code> 的 <code>getLHS()</code> 、<code>getRHS()</code> 函数分别获得左右的表达式</li>
+<li>如果左边表达式是 Objective-C 类的属性的话，获取该属性对应的类型 A。进入第 4 步</li>
+<li>如果右边表达式是 Objective-C 的函数调用，且被调用的函数是有我们上面所定义 <strong>attribute</strong>((objc_same_type)) 的话（可以通过 <code>ObjCMethodDecl</code> 的 <code>attrs()</code> 方法获得 Objective-C 函数的所有的 attribute），获取该函数的参数对应的类型 B</li>
+<li>对比 A 和 B 的类型是否一致，如果不一致，则弹出类型不一致的编译警告，并提出恰当的修改方法（如效果演示图所示）</li>
+</ol>
+<blockquote>
+<p>具体的实现代码和使用方法查看 Github：<a href="https://github.com/VernonVan/SameTypeClangPlugin" target="_blank" rel="external">https://github.com/VernonVan/SameTypeClangPlugin</a></p>
+</blockquote>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>最终花了不到 200 行代码就完成了这个小小的功能，但是却花了我将近一个月的业余时间，中间也做了很多无用功，在错误的道路上走了一段时间才发现自己做的完全是错的，幸好最后还是成功找到了正确的方法。不过，自己也收获了很多的技能点，比如说阅读源码的能力，得益于 LLVM 良好的代码设计和模块化，让我一个门外汉也能比较快速的从庞大的代码中找到自己想要的部分；比如说 CMake 构建工程的知识、C++ 语言以及查找阅读英文文档的能力。收获还是比较多的🍹🍹🍹</p>
+<p>接下来如果在 LLVM &amp;&amp; Clang 这一块有其他的所得的话，会再撰文分享~</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/clang-llvm/" rel="tag"># clang & llvm</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/22/Clang之旅-添加自定义的attribute/" rel="next" title="Clang 之旅—[翻译]添加自定义的 attribute">
+                <i class="fa fa-chevron-left"></i> Clang 之旅—[翻译]添加自定义的 attribute
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/"
+           data-title="Clang 之旅--实现一个自定义检查规范的 Clang 插件" data-url="http://yoursite.com/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="ruanpapa & 又吉君" />
+          <p class="site-author-name" itemprop="name">ruanpapa & 又吉君</p>
+          <p class="site-description motion-element" itemprop="description">ruanpapa和又吉君写字的地方</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/VernonVan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具化需求"><span class="nav-number">2.</span> <span class="nav-text">具化需求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最终效果"><span class="nav-number">3.</span> <span class="nav-text">最终效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象语法树（Abstract-syntax-tree）"><span class="nav-number">4.</span> <span class="nav-text">抽象语法树（Abstract syntax tree）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现思路"><span class="nav-number">5.</span> <span class="nav-text">实现思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结语"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruanpapa & 又吉君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"vernonvan"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fRSRDUvIyCVcsgLOHArGl58q-gzGzoHsz", "0mGpmjuTsGuu9JEKGaU6YX9j");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

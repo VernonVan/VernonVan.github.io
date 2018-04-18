@@ -10,6 +10,13 @@ categories:
 
 
 
+Clang 之旅系列文章：
+[Clang 之旅--使用 Xcode 开发 Clang 插件](https://www.jianshu.com/p/e3f46d42643b)
+[Clang 之旅--[翻译]添加自定义的 attribute](https://www.jianshu.com/p/d277c42f4907)
+[Clang 之旅--实现一个自定义检查规范的 Clang 插件](https://www.jianshu.com/p/c27b77f70616)
+
+
+
 ### 前言
 
 最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。
@@ -17,12 +24,6 @@ categories:
 我打算将 Clang 的研究心得分为几篇文章来写，这是 Clang 之旅的第一篇，主要讲如何用 Xcode 编译 Clang，以及实现一个简单的 Clang 插件并挂载到 Xcode 中参与编译流程，算是进入 Clang 的门槛。只是，这门槛就狠狠地让我吃了苦头，Google 找到好几篇博客讲怎么编译 Clang 的，但是也有一些年头了，版本比较旧，编译出来的 Clang 不能运行在现在的系统上；还有一些写的比较含糊，漏了某些关键步骤，导致花了好几个小时跟着教程做下来最后还是一堆 error；而且试错的成本还是比较高的，下载的源码有1G多（考虑从 Github 下载的速度🙄，需要挂个代理），完整编译出来有20G左右，我的15款 Macbook Pro 大概需要疯狂编译2个小时…...如果不能接受这些的话，还是别尝试了，很遗憾，你连见到 Clang 真容的机会都没有┑(￣Д ￣)┍
 
 ![llvm大小](https://upload-images.jianshu.io/upload_images/698554-49318ad53d98d6ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
-
-
-Clang 之旅系列文章：
-[Clang 之旅--使用 Xcode 开发 Clang 插件](https://www.jianshu.com/p/e3f46d42643b)
-[Clang 之旅—[翻译]添加自定义的 attribute](https://www.jianshu.com/p/d277c42f4907)
 
 
 

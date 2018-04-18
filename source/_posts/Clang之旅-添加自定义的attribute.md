@@ -10,15 +10,16 @@ categories:
 
 
 
+Clang 之旅系列文章：
+[Clang 之旅--使用 Xcode 开发 Clang 插件](https://www.jianshu.com/p/e3f46d42643b)
+[Clang 之旅--[翻译]添加自定义的 attribute](https://www.jianshu.com/p/d277c42f4907)
+[Clang 之旅--实现一个自定义检查规范的 Clang 插件](https://www.jianshu.com/p/c27b77f70616)
+
+
+
 ### 前言
 
 这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译[官方文档](https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute)中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，涉及专有词汇比较多的原因，所以我会偏向意译多一点，试图用更加易懂的表达组织语言，也是加深自己的记忆吧。
-
-
-
-Clang 之旅系列文章：
-[Clang 之旅--使用 Xcode 开发 Clang 插件](https://www.jianshu.com/p/e3f46d42643b)
-[Clang 之旅—[翻译]添加自定义的 attribute](https://www.jianshu.com/p/d277c42f4907)
 
 
 
