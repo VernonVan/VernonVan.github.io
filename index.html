@@ -251,6 +251,230 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="ruanpapa & 又吉君">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/" itemprop="url">
+                  Clang 之旅--实现一个自定义检查规范的 Clang 插件
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-17T15:55:23+08:00">
+                2018-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
+                    <span itemprop="name">ruanpapa--技术贴</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/" class="leancloud_visitors" data-flag-title="Clang 之旅--实现一个自定义检查规范的 Clang 插件">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅–[翻译]添加自定义的 attribute</a><br><a href="https://www.jianshu.com/p/c27b77f70616" target="_blank" rel="external">Clang 之旅–实现一个自定义检查规范的 Clang 插件</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 Clang 之旅系列文章<a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">开篇</a>的时候，我说到过自己接触 Clang 的直接原因就是想实现一个自定义的检查需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。现在我已经根据自己的需求完成了这个插件，这篇文章会讲解这个插件的实现思路，对应的代码在这里：<a href="https://github.com/VernonVan/SameTypeClangPlugin" target="_blank" rel="external">https://github.com/VernonVan/SameTypeClangPlugin</a></p>
+<h3 id="具化需求"><a href="#具化需求" class="headerlink" title="具化需求"></a>具化需求</h3><p>首先我先将需求具化一下，之前说的比较宽泛。</p>
+<p>试想我们有这么一个函数 <code>modelOfClass</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">- (__kindof NSObject *)modelOfClass:(Class)modelClass </div><div class="line">&#123;</div><div class="line">    if ([modelClass isKindOfClass:[NSString class]]) &#123;</div><div class="line">        return [[NSString alloc] init];</div><div class="line">    &#125; else if ([modelClass isKindOfClass:[NSArray class]]) &#123;</div><div class="line">        return [[NSArray alloc] init];</div><div class="line">    &#125;</div><div class="line">    return nil;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>modelOfClass</code> 接受一个 <code>Class</code> 类型的参数，然后会根据 <code>Class</code> 对应的类进行不同的操作，最终返回处理好的 <code>Class</code> 对应类的实例对象。我们用 <code>__kindof NSObject *</code> 返回值类型来保证返回的一定是 <code>NSObject</code> 或者其子类，能保证的也只有这样而已。但是，存在这样一种错误的调用方式，但是却能通过编译：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">@property (nonatomic, strong) NSString *myString;</div><div class="line">@property (nonatomic, strong) NSArray *myArray;</div><div class="line"></div><div class="line">- (void)someMethod</div><div class="line">&#123;</div><div class="line">    self.myString = [self modelOfClass:[NSString class]];</div><div class="line">    self.myArray = [self modelOfClass:[NSString class]];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以发现，<code>someMethod</code> 中有两行 <code>modelOfClass</code> 的函数调用。第一行调用是正确的，<code>NSString *</code> 类型的属性 <code>myString</code> 调用时传入的是 <code>[NSString class]</code>；第二行调用是错误的，<code>NSArray *</code> 类型的属性 <code>myArray</code> 调用时传入的是 <code>[NSString class]</code>。也就是说，在 Objective-C 语言中，并没有一种办法能够检查函数调用时参数类型和返回值类型是完全一致的。</p>
+<p>这个需求是从我所在公司的项目中抽象简化出来的，大家看不出来这个函数究竟是用来干什么的，可能会觉得这个需求并不常见，没有什么通用性。但是这篇文章希望读者看了之后能以小见大，举一反三，更重要的是学到怎么样使用通用的方式，根据自己的需求实现自定义检查规范的 Clang 插件。</p>
+<h3 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h3><p>我们来看看最终实现的效果：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-c7aa746724799734.GIF?imageMogr2/auto-orient/strip" alt="演示效果"></p>
+<p>最终实现了上面所说的类型检查，同时还给出了对应的修改方法（FixIt），点击修改就能改成正确的参数类型🎉🎉🎉 下面就来说说具体是怎么实现的。</p>
+<h3 id="抽象语法树（Abstract-syntax-tree）"><a href="#抽象语法树（Abstract-syntax-tree）" class="headerlink" title="抽象语法树（Abstract syntax tree）"></a>抽象语法树（Abstract syntax tree）</h3><p>抽象语法树，英文简称为 AST，是编译过程中语法分析阶段的产物，也是我们作为外部开发者与 Clang 进行交互的最重要的方式。所以我们最重要的就是学会怎么样阅读、分析语法树。</p>
+<p>在命令行中输入以下命令，打印 main.m 文件对应的语法树到命令行中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator11.3.sdk -fmodules -fsyntax-only -Xclang -ast-dump main.m</div></pre></td></tr></table></figure>
+<blockquote>
+<p>在我写这篇文章时 Xcode 版本是9.3，对应的是 iPhoneSimulator11.3.sdk，你需要进入该目录查看你的 sdk 版本，然后修改 -isysroot 命令后的 sdk 路径</p>
+</blockquote>
+<p>打印出来的语法树如下图：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-f509375dfc159afe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="AST"></p>
+<p>编译前端 Clang 首先进行词法分析（Lexical Analysis），把源文件的字符流拆分一个一个的 token；然后 token 进入语法分析（Semantic Analysis），将这些 token 组合成语法树。左边的缩进代表了语法树节点的从属关系，语法树上的每一个节点的名字都能在 Clang 源码中找到对应的类。</p>
+<p>从图中挑几个点来解释一下（对应图中的红色标注）：</p>
+<ol>
+<li><p><code>ObjCImplementationDecl</code> 节点代表了 Objective-C 类中的 <code>@implementation</code> 部分的内容</p>
+</li>
+<li><p><code>ObjCMethodDecl</code> 节点代表了 Objective-C 中的函数定义，我们在 Clang 源码中查看一下对应类的定义</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-3ece97359f29ec5e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ObjCMethodDecl"></p>
+<p>Clang 的文档注释可以说相当齐全了，<code>ObjCMethodDecl</code>  代表了一个类方法或者实例方法。所有的 <code>public:</code> 域中的方法都是我们可以用的，比如说  <code>Selector getSelector()</code> 可以获取该方法的 <code>Selector</code>，<code>ArrayRef&lt;ParmVarDecl*&gt; parameters()</code> 可以获取获取该方法的参数列表等等。</p>
+</li>
+<li><p>框中的语法块代表了源文件中 <code>self.myString = [self modelOfClass:[NSString class]];</code> 语句，<code>BinaryOperator</code> 代表了二元操作符（包括赋值的“=”），可以通过 <code>BinaryOperator</code> 类的 <code>Expr *getLHS()</code> 和 <code>Expr *getRHS()</code> 分别取得“=”左右两边的语句。</p>
+</li>
+</ol>
+<blockquote>
+<p>详细的 AST 树的分析可以查看官方的教程：<a href="http://clang.llvm.org/docs/IntroductionToTheClangAST.html" target="_blank" rel="external">http://clang.llvm.org/docs/IntroductionToTheClangAST.html</a></p>
+</blockquote>
+<p>那么多种的 AST 节点中应该怎么只获取自己感兴趣的节点呢？</p>
+<p>Clang 提供了 <code>ASTMatcher</code> 类供我们进行 AST 节点的查找过滤，有一篇专门解释罗列各种各样的 <code>ASTMatcher</code> 的<a href="http://clang.llvm.org/docs/LibASTMatchersReference.html" target="_blank" rel="external">官方文档</a>可以查看。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/698554-71f15a143a85a6e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ASTMatcher"></p>
+<p>比如可以用 <code>objcPropertyDecl</code> 来匹配到 Objective-C 的类属性，<code>ASTMatcher</code> 可以用一种类似链式语法的方式将一系列的 Matcher 串起来，比如可以用 <code>cxxRecordDecl(unless(hasName(&quot;X&quot;)))</code> 来匹配到满足类名不为 <code>X</code> 的所有 C++ 类。</p>
+<blockquote>
+<p>具体的 ASTMatcher 的使用方法可以查看这篇教程：<a href="https://eli.thegreenplace.net/2014/07/29/ast-matchers-and-clang-refactoring-tools" target="_blank" rel="external">https://eli.thegreenplace.net/2014/07/29/ast-matchers-and-clang-refactoring-tools</a></p>
+</blockquote>
+<h3 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h3><p>基础知识铺垫完了，现在我们来拆解一下我们的需求。首先我们需要有一种方式标记需要进行这种检查的函数，总不至于所有函数调用我们都去检查一遍吧😹 这时候就可以想到可以通过 attribute 的方式标记函数！</p>
+<blockquote>
+<p>关于 attribute 的知识，可以查看孙源大神的这篇文章：<a href="https://blog.sunnyxx.com/2016/05/14/clang-attributes/" target="_blank" rel="external">Clang Attributes 黑魔法小记</a>，讲解了多种常见不常见的 attribute 的使用场景</p>
+<p>另外一篇就是官方关于如何在 Clang 中添加自定义的 attribute 的文档：<a href="https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute" target="_blank" rel="external">How to add an attribute</a>，我自己也翻译了这篇文档，请戳<a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">中文版</a>。</p>
+</blockquote>
+<p>这里不讲解怎么添加自定义的 attribute，比较简单，就是按最简单的模板添加的。添加完了之后，得在 <code>modelOfClass</code> 后面加上一句 <code>__attribute__((objc_same_type))</code>，代表 <code>modelOfClass</code> 在每次被调用时都会进行自定义的检查，这样才能出现上面演示效果图中的检查结果（objc_same_type 就是我所添加的 attribute 的名字）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">- (__kindof NSObject *)modelOfClass:(Class)modelClass __attribute__((objc_same_type))</div></pre></td></tr></table></figure>
+<p>#### </p>
+<p>具体该怎么检查呢？分成以下几个步骤：</p>
+<ol>
+<li>首先判断语法树上的节点是否是赋值语句（Clang 中用 <code>BinaryOperator</code> 表征赋值语句）。如果是，进入第 2 步</li>
+<li>用 <code>BinaryOperator</code> 的 <code>getLHS()</code> 、<code>getRHS()</code> 函数分别获得左右的表达式</li>
+<li>如果左边表达式是 Objective-C 类的属性的话，获取该属性对应的类型 A。进入第 4 步</li>
+<li>如果右边表达式是 Objective-C 的函数调用，且被调用的函数是有我们上面所定义 <strong>attribute</strong>((objc_same_type)) 的话（可以通过 <code>ObjCMethodDecl</code> 的 <code>attrs()</code> 方法获得 Objective-C 函数的所有的 attribute），获取该函数的参数对应的类型 B</li>
+<li>对比 A 和 B 的类型是否一致，如果不一致，则弹出类型不一致的编译警告，并提出恰当的修改方法（如效果演示图所示）</li>
+</ol>
+<blockquote>
+<p>具体的实现代码和使用方法查看 Github：<a href="https://github.com/VernonVan/SameTypeClangPlugin" target="_blank" rel="external">https://github.com/VernonVan/SameTypeClangPlugin</a></p>
+</blockquote>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>最终花了不到 200 行代码就完成了这个小小的功能，但是却花了我将近一个月的业余时间，中间也做了很多无用功，在错误的道路上走了一段时间才发现自己做的完全是错的，幸好最后还是成功找到了正确的方法。不过，自己也收获了很多的技能点，比如说阅读源码的能力，得益于 LLVM 良好的代码设计和模块化，让我一个门外汉也能比较快速的从庞大的代码中找到自己想要的部分；比如说 CMake 构建工程的知识、C++ 语言以及查找阅读英文文档的能力。收获还是比较多的🍹🍹🍹</p>
+<p>接下来如果在 LLVM &amp;&amp; Clang 这一块有其他的所得的话，会再撰文分享~</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/Clang之旅-添加自定义的attribute/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -374,8 +598,8 @@
       
         
           
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译<a href="https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute" target="_blank" rel="external">官方文档</a>中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，涉及专有词汇比较多的原因，所以我会偏向意译多一点，试图用更加易懂的表达组织语言，也是加深自己的记忆吧。</p>
-<p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅—[翻译]添加自定义的 attribute</a></p>
+            <p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅–[翻译]添加自定义的 attribute</a><br><a href="https://www.jianshu.com/p/c27b77f70616" target="_blank" rel="external">Clang 之旅–实现一个自定义检查规范的 Clang 插件</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译<a href="https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute" target="_blank" rel="external">官方文档</a>中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，涉及专有词汇比较多的原因，所以我会偏向意译多一点，试图用更加易懂的表达组织语言，也是加深自己的记忆吧。</p>
 <h2 id="怎样添加-attribute"><a href="#怎样添加-attribute" class="headerlink" title="怎样添加 attribute"></a>怎样添加 attribute</h2><p>attribute 是一种可以附加到程序结构中的数据形式，允许开发人员传递信息给编译器来实现各种需求。例如，attribute 可以用来改变在程序构造时生成的代码，或者用来提供额外的信息给静态分析。本文档讲解如何添加一个自定义的 attribute 到 Clang 中。现有 attribute 列表的文档可以在<a href="https://clang.llvm.org/docs/AttributeReference.html" target="_blank" rel="external">这里</a>找到。</p>
 <h3 id="attribute-基础知识"><a href="#attribute-基础知识" class="headerlink" title="attribute 基础知识"></a>attribute 基础知识</h3><p>Clang 中的 attribute 涉及到三个阶段：解析 attribute 、从已解析的 attribute 转换成语法树上的 attribute、对 attribute 进行处理。</p>
 <p>attribute 的解析可以采用多种语法形式，例如 GNU、C++ 11 和 Microsoft 形式，还由 attribute 提供的其他信息来确定。最终，解析好的 attribute 用一个 <code>AttributeList</code> 对象来表示。这些解析好的 attribute 会链成一个 attribute 链，加到声明或者定义上。attribtue 的解析是由 Clang 自动完成的，除了那些关键字 attribute。关键字的解析和 <code>AttributeList</code> 对象的生成必须由我们手动完成。</p>
@@ -609,10 +833,10 @@
       
         
           
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。</p>
+            <p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅–[翻译]添加自定义的 attribute</a><br><a href="https://www.jianshu.com/p/c27b77f70616" target="_blank" rel="external">Clang 之旅–实现一个自定义检查规范的 Clang 插件</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。</p>
 <p>我打算将 Clang 的研究心得分为几篇文章来写，这是 Clang 之旅的第一篇，主要讲如何用 Xcode 编译 Clang，以及实现一个简单的 Clang 插件并挂载到 Xcode 中参与编译流程，算是进入 Clang 的门槛。只是，这门槛就狠狠地让我吃了苦头，Google 找到好几篇博客讲怎么编译 Clang 的，但是也有一些年头了，版本比较旧，编译出来的 Clang 不能运行在现在的系统上；还有一些写的比较含糊，漏了某些关键步骤，导致花了好几个小时跟着教程做下来最后还是一堆 error；而且试错的成本还是比较高的，下载的源码有1G多（考虑从 Github 下载的速度🙄，需要挂个代理），完整编译出来有20G左右，我的15款 Macbook Pro 大概需要疯狂编译2个小时……如果不能接受这些的话，还是别尝试了，很遗憾，你连见到 Clang 真容的机会都没有┑(￣Д ￣)┍</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/698554-49318ad53d98d6ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="llvm大小"></p>
-<p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅—[翻译]添加自定义的 attribute</a></p>
 <h3 id="编译源码"><a href="#编译源码" class="headerlink" title="编译源码"></a>编译源码</h3><h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p>Clang 需要用 CMake 来编译，CMake 的安装方法可以参考这篇文章：<a href="https://www.jianshu.com/p/7466c85d5d6b" target="_blank" rel="external">Mac 安装 CMake &amp; CMake Command Line Tools</a>，建议对 CMake 完全不了解的同学可以先补充一点 CMake 的基本知识，这样能更容易理解接下来要做的事情，CMake 的入门知识可以参考：<a href="http://www.hahack.com/codes/cmake/" target="_blank" rel="external">CMake 入门实战</a></p>
 <h4 id="下载源码"><a href="#下载源码" class="headerlink" title="下载源码"></a>下载源码</h4><p>首先创建 LLVM 的源码路径及编译路径：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cd /opt</div><div class="line">sudo mkdir llvm</div><div class="line">sudo chown `whoami` llvm	// 将 llvm 目录的所有者指定为当前用户</div><div class="line">cd llvm</div><div class="line">export LLVM_HOME=`pwd`		// 设置当前目录(/opt/llvm)为 LLVM_HOME 目录</div></pre></td></tr></table></figure>
@@ -2157,228 +2381,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/20/iOS性能优化探讨/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="ruanpapa & 又吉君">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="ruanpapa和又吉君写字的地方">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="ruanpapa和又吉君写字的地方" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/09/20/iOS性能优化探讨/" itemprop="url">
-                  iOS性能优化探讨
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-20T11:11:06+08:00">
-                2017-09-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ruanpapa-技术贴/" itemprop="url" rel="index">
-                    <span itemprop="name">ruanpapa--技术贴</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/09/20/iOS性能优化探讨/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/09/20/iOS性能优化探讨/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/09/20/iOS性能优化探讨/" class="leancloud_visitors" data-flag-title="iOS性能优化探讨">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数 </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><em>最近在公司内部做了一个分享会，探讨了iOS性能优化的话题，现在将重点的内容整理好发出来，各位大牛斧正。</em></p>
-<p>本文将从原理出发，解释卡顿发生的原理，然后会讲解项目中行之有效的几个优化点，最后会展望一下接下来将要尝试的方向。下面进入正题。</p>
-<h3 id="屏幕显示的原理"><a href="#屏幕显示的原理" class="headerlink" title="屏幕显示的原理"></a>屏幕显示的原理</h3><h4 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h4><p><img src="http://upload-images.jianshu.io/upload_images/698554-f81809fe17a003e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="屏幕显示"></p>
-<p>我们知道，远古时代的CRT显示器的显示原理是用电子枪扫描荧光屏来发光。如上图所示，电子枪按照从左到右，从上到下的顺序扫描。当电子枪换到新的一行准备进行扫描时，也就是上图A4、B4、C4、D4的位置，显示器会发出一个水平同步信号；而当一帧画面绘制完成后，电子枪回复到原位准备画下一帧前，也就是上图D4的位置，显示器会发出一个垂直同步信号。垂直同步信号的作用一方面是通知显示器回到A1位置，另外一方面，也通知显卡，准备输出下一帧画面。现在已经是液晶显示器的时代了，不再使用电子枪扫描了，但是原理还是类似的，水平同步信号和垂直同步信号还是一样被使用的。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/698554-10c8e7e137166beb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="计算机工作原理"></p>
-<p>计算机系统的工作原理如上图所示：首先是CPU的工作，包括创建视图分配内存、计算布局、图片解码以及文本绘制等；接下来轮到GPU工作了，GPU负责视图变换、合成和渲染等；GPU渲染完提交到帧缓冲区中，等收到垂直同步信号后将帧缓冲区的内容显示到屏幕上。</p>
-<h4 id="屏幕撕裂-Screen-tearing"><a href="#屏幕撕裂-Screen-tearing" class="headerlink" title="屏幕撕裂(Screen tearing)"></a>屏幕撕裂(Screen tearing)</h4><p>上述的简单的屏幕显示原理其实会产生这样一个问题：假设我们的显卡速度很快，每秒生产的帧数肯定要超过显示器刷新率。那么在实际数据处理过程中，缓冲区的数据，在被输出之前，就被显卡不断的刷新重写。但是缓冲区并不是“先清空再写入数据”，这太没有效率，而是采用“新数据覆盖老数据”的方式。</p>
-<p>假设这样一种情况，缓冲区已经有一副完整的帧画面（A帧），然后显卡生成了下一帧画面（B帧），新一帧的数据开始写入缓冲区，写到一半的时候，垂直同步信号来了，于是缓冲区的数据被输出到显示器。但问题是，这时缓冲区的数据，是由一半A帧和一半B帧数据合成的。因此最终显示器上显示出来的画面就不是一副完整的画面，这就是“画面撕裂”现象出现的原因，如下图。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/698554-66bc0d60d4a305c8.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="屏幕撕裂"></p>
-<p>那怎样才能解决画面撕裂的问题呢？简单来说只要让帧缓冲区里的数据始终保持一副完整的画面就可以了。从技术角度出发，其实就是利用刚刚提到的垂直同步信号。</p>
-<p>具体说起来就是，当显卡生成了一副完整画面并写入了帧缓冲区之后，暂停！然后开始等待垂直同步信号，当得到垂直同步信号后，再继续渲染下一帧写入缓冲区。这样就可以保证在缓冲区的数据始终是一副完整的画面，不会出现前后帧混合的问题。</p>
-<h4 id="卡顿产生原因"><a href="#卡顿产生原因" class="headerlink" title="卡顿产生原因"></a>卡顿产生原因</h4><p>但是呢，垂直同步机制带来了一个新的问题 —— 掉帧。所谓的掉帧，跟垂直同步有一定关系，因为垂直同步机制决定了如果在一个时钟周期内CPU或者GPU没有完成各自的任务的话，就会将帧缓冲区里的内容直接丢弃！掉帧并不能完全怪罪于垂直同步机制，更重要的原因是我们作为开发者没有进行足够的优化，将过重的任务派发到了CPU或者GPU上，下图(from：<a href="https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="external">iOS 保持界面流畅的技巧</a>)是掉帧的图示，表明CPU或者GPU任意一个没能在时钟周期内完成自己的任务的话都会导致卡顿掉帧。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/698554-75e20f80bb5101f5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="卡顿"></p>
-<h3 id="行之有效的优化点"><a href="#行之有效的优化点" class="headerlink" title="行之有效的优化点"></a>行之有效的优化点</h3><ol>
-<li><h4 id="提前布局"><a href="#提前布局" class="headerlink" title="提前布局"></a>提前布局</h4><p>提前布局可以说是最重要的优化点了。其实在从服务端拿到 JSON 数据的时候，关于视图的布局就已经确定了，包括每个控件的frame、cell的高度以及文本排版结果等等，在这个时候完全可以在后台线程计算并封装为对应的布局对象XXXTableViewCellLayout，每个cellLayout的内存占用并不是很多，所以直接全部缓存到内存中。当列表滚动到某个cell的时候，直接拿到对应的cellLayout配置这个cell的对应属性即可。当然，该有的计算是免不了的，只是提前算好并缓存，免去了在滚动的时候计算和重复的计算。通过这一个优化，将本来的fps50的列表优化到了55、56左右，可以说从肉眼上已经看不出有卡顿掉帧了。</p>
-<p>​</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/698554-6b21937ce6754567.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="cellLayout示例图"></p>
-<p>上图是项目中某个cellLayout的部分代码，可以看到里面存的就是所有控件的frame和文本的排版结果而已，里面没有任何的黑科技，只是将本来在滚动中才做的事情提前了而已。</p>
-<p>​</p>
-</li>
-<li><h4 id="按页加载缓存"><a href="#按页加载缓存" class="headerlink" title="按页加载缓存"></a>按页加载缓存</h4><ul>
-<li><p>现状分析：90%的APP有tableview，90%的tableview里有上拉刷新和下拉加载。以我司的项目<strong>ZAKER</strong>中的热点新闻界面为例，简单流程大概是这样的：①应用启动的时候会将磁盘中所有的新闻一次性读取出来显示到屏幕上； ②在每次下拉刷新和上拉加载的时候会将内存中所有新闻缓存到磁盘中，也即全量读写。这意味着大部分的新闻数据会反复写入到磁盘中，这样的写入是冗余的，因为前面的这些新闻数据并没有发生改变。</p>
-<p>​</p>
-</li>
-<li><p>改进方案：所以优化的方法就是将这些列表数组进行分割，分割成一页一页，每次写入的数据量很小，而且避免了冗余写入的问题。现在的流程变为：①启动时只读取第一批新闻显示在屏幕中；②下拉刷新和上拉加载的时候只把当前服务器返回的一批新闻写入缓存中；③在上拉加载的时候会先查看磁盘中是否有未读的缓存，若有则读取缓存，否则才从服务器下载一批新的文章。</p>
-<p>​</p>
-</li>
-<li><p>直观图示：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/698554-ba7a27262a9e0931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="按页缓存"></p>
-<p>可以看到，优化之前整个新闻列表以及其他配置都在一个文件里，刷新10几次之后文件大小达到2MB，并且随着不断刷新而越来越大；优化之后，其他的配置还是在刚刚的文件中，但是不断增长的新闻数组被分割成一页一页的文件，每一页里面有10多条的新闻数据，同时有一个configure文件保存这些页的信息以及页的顺序。根据测试人员的反馈，进行按页加载缓存优化能减少5%~8%的CPU占用，使用的内存也有一定的下降。还是有很明显的优化效果的。</p>
-<p>​</p>
-</li>
-</ul>
-</li>
-<li><h4 id="后台线程处理图片"><a href="#后台线程处理图片" class="headerlink" title="后台线程处理图片"></a>后台线程处理图片</h4><p>圆形头像、图片裁圆角等处理可以说是非常常见的需求了，包括从iOS11的系统各处都能看到，整体的页面控件都变得更加圆润了。但是，对图片处理必然是消耗资源的，实现过图片圆角效果的应该都知道，最简单的就是 layer.cornerRadius+layer.masksToBounds 的方式，但是这种做法在tableview中往往会是滚动变得卡顿，因为这种实现方式会触发离屏渲染，屏幕外缓冲区跟当前屏幕缓冲区上下文切换是很耗性能的，所以离屏渲染往往会造成卡顿(参考：<a href="http://www.jianshu.com/p/6d24a4c29e18" target="_blank" rel="external">iOS 离屏渲染的研究</a>)。</p>
-<p>那要怎么处理图片呢？可以使用Core Graphics，CoreGraphic通常是线程安全的，所以可以进行异步绘制，显示的时候再放回主线程。我们在项目中实现了一个后台处理图片的框架，核心代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">NSBlockOperation *transformOperation = [[NSBlockOperation alloc] init];</div><div class="line">    [transformOperation addExecutionBlock:^&#123;        </div><div class="line">        // 此处处理图片</div><div class="line">      	...</div><div class="line">        dispatch_async(dispatch_get_main_queue(), ^&#123;</div><div class="line">          	    // 主线程设置图片</div><div class="line">                [self setImage:transformedImage forState:UIControlStateNormal];</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;];</div></pre></td></tr></table></figure>
-<p>​</p>
-<p>​</p>
-</li>
-<li><h4 id="更加高效的控件"><a href="#更加高效的控件" class="headerlink" title="更加高效的控件"></a>更加高效的控件</h4><p>还可以直接从开源库中选用更加高效的控件替换项目中性能没那么好的控件。项目中将之前的TTTAttributedLabel、M80AttributedLabel全部替换为YYLabel，开启YYLabel的displaysAsynchronously、ignoreCommonProperties属性可以异步绘制文本以及忽略不需要的属性。更加追求性能的话，可以结合第1点的提前布局机制，在提前布局的阶段生成好YYLabel渲染时用到的textLayout，显示的时候直接赋值textLayout就可以了。</p>
-<p>​</p>
-</li>
-<li><h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><p>还有一些比较微小的优化，对性能可以说没有多大的影响，但是可以在开发阶段稍加留意，养成良好的习惯。</p>
-<ul>
-<li>尽量减少视图层级，合并多余的视图。同样以 <strong>ZAKER</strong> 为例，用户显示时的蓝V标签、达人标签以及楼主图片等几个视图，之前是用不同的view来展示的，优化过程将这几个view合并为一个view，一个view管理这些相似的事物，也可以减少某些相同逻辑的代码。</li>
-<li>减少频繁的addSubview、removeSubview，remove之后视图的实例对象会被释放，再add的时候会再次调用初始化函数。可以用hidden属性隐藏不显示的视图。</li>
-</ul>
-</li>
-</ol>
-<h3 id="接下来的方向"><a href="#接下来的方向" class="headerlink" title="接下来的方向"></a>接下来的方向</h3><ol>
-<li><h4 id="异步绘制"><a href="#异步绘制" class="headerlink" title="异步绘制"></a>异步绘制</h4><p>从开始接触我们就一直在被告知，UIKit的东西是绝对不能在后台线程调用的，一定得在主线程调用，所以主线程也被叫做UI线程。在后台线程调用UIKit的东西有一定几率导致崩溃，或者出现视图不显示、显示错乱等等问题。但是呢，根据刚刚所说的，Core Graphics的那一套东西是线程安全的，所以可以通过Core Graphics在后台将视图渲染到一张图片上，显示的时候在主线程将这张图片设置到相应位置上。Facebook著名的AsyncDisplayKit的核心实现应该也是基于这个原理，接下来的优化可以尝试这个方案。</p>
-<p>​</p>
-</li>
-<li><h4 id="Metal"><a href="#Metal" class="headerlink" title="Metal"></a>Metal</h4><p>根据Apple官方说法，Metal框架被设计用来实现两个目标: 3D 图形渲染和并行计算。这两者有很多共同点。它们都在数量庞大的数据上并行运行特殊的代码，并可以在GPU上执行。目前正在研究学习阶段，看项目中是否能利用Metal进行一定的优化。</p>
-<p>​</p>
-</li>
-<li><h4 id="APM"><a href="#APM" class="headerlink" title="APM??"></a>APM??</h4><p>Application Performance Management(APM)：应用程序性能管理， 通过对应用的可靠性、稳定性等方面的监控，进而达到可以快速修复问题、提高用户体验的目的。目前比较有代表性的 APM 产品有：听云、阿里百川、腾讯bugly等，现在也在考虑自己研发一套APM系统，先从比较简单的指标入手，先对卡顿和崩溃这两个指标着手，做的顺利的话再逐步扩展别的指标的检测管理。</p>
-</li>
-</ol>
-<p>以上。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2426,7 +2428,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

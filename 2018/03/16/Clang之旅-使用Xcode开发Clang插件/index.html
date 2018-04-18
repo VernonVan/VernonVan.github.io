@@ -84,14 +84,14 @@
 
 
 
-<meta name="description" content="前言最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。
-我打算将 Clang 的研究心得分为几篇文章来写，这是 Clang 之旅">
+<meta name="description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 S">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Clang 之旅--使用 Xcode 开发 Clang 插件">
 <meta property="og:url" content="http://yoursite.com/2018/03/16/Clang之旅-使用Xcode开发Clang插件/index.html">
 <meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
-<meta property="og:description" content="前言最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。
-我打算将 Clang 的研究心得分为几篇文章来写，这是 Clang 之旅">
+<meta property="og:description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 S">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-49318ad53d98d6ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-5e54bd18bac5a151.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-975fe9e218257288.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
@@ -107,11 +107,11 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-4ad812d07429b0e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-e50bcd49a7356985.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/698554-de614d7d87c219d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-17T02:44:34.304Z">
+<meta property="og:updated_time" content="2018-04-18T03:22:48.022Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Clang 之旅--使用 Xcode 开发 Clang 插件">
-<meta name="twitter:description" content="前言最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。
-我打算将 Clang 的研究心得分为几篇文章来写，这是 Clang 之旅">
+<meta name="twitter:description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 S">
 <meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/698554-49318ad53d98d6ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
@@ -387,10 +387,10 @@
       
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。</p>
+        <p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅–[翻译]添加自定义的 attribute</a><br><a href="https://www.jianshu.com/p/c27b77f70616" target="_blank" rel="external">Clang 之旅–实现一个自定义检查规范的 Clang 插件</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近在跟老大的聊天中聊到了一个比较特殊的需求：是否有办法在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。这似乎已经不是 Objective-C 或者 Swift 的语言语法本身所能解决的了，老大还指点了可以从编译器等底层中进行研究。于是，我踏进了 Clang 和 LLVM 的大门。</p>
 <p>我打算将 Clang 的研究心得分为几篇文章来写，这是 Clang 之旅的第一篇，主要讲如何用 Xcode 编译 Clang，以及实现一个简单的 Clang 插件并挂载到 Xcode 中参与编译流程，算是进入 Clang 的门槛。只是，这门槛就狠狠地让我吃了苦头，Google 找到好几篇博客讲怎么编译 Clang 的，但是也有一些年头了，版本比较旧，编译出来的 Clang 不能运行在现在的系统上；还有一些写的比较含糊，漏了某些关键步骤，导致花了好几个小时跟着教程做下来最后还是一堆 error；而且试错的成本还是比较高的，下载的源码有1G多（考虑从 Github 下载的速度🙄，需要挂个代理），完整编译出来有20G左右，我的15款 Macbook Pro 大概需要疯狂编译2个小时……如果不能接受这些的话，还是别尝试了，很遗憾，你连见到 Clang 真容的机会都没有┑(￣Д ￣)┍</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/698554-49318ad53d98d6ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="llvm大小"></p>
-<p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅—[翻译]添加自定义的 attribute</a></p>
 <h3 id="编译源码"><a href="#编译源码" class="headerlink" title="编译源码"></a>编译源码</h3><h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p>Clang 需要用 CMake 来编译，CMake 的安装方法可以参考这篇文章：<a href="https://www.jianshu.com/p/7466c85d5d6b" target="_blank" rel="external">Mac 安装 CMake &amp; CMake Command Line Tools</a>，建议对 CMake 完全不了解的同学可以先补充一点 CMake 的基本知识，这样能更容易理解接下来要做的事情，CMake 的入门知识可以参考：<a href="http://www.hahack.com/codes/cmake/" target="_blank" rel="external">CMake 入门实战</a></p>
 <h4 id="下载源码"><a href="#下载源码" class="headerlink" title="下载源码"></a>下载源码</h4><p>首先创建 LLVM 的源码路径及编译路径：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cd /opt</div><div class="line">sudo mkdir llvm</div><div class="line">sudo chown `whoami` llvm	// 将 llvm 目录的所有者指定为当前用户</div><div class="line">cd llvm</div><div class="line">export LLVM_HOME=`pwd`		// 设置当前目录(/opt/llvm)为 LLVM_HOME 目录</div></pre></td></tr></table></figure>
@@ -577,7 +577,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

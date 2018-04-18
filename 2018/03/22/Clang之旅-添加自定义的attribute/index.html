@@ -84,16 +84,19 @@
 
 
 
-<meta name="description" content="前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译官方文档中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，">
+<meta name="description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Clang 之旅—[翻译]添加自定义的 attribute">
 <meta property="og:url" content="http://yoursite.com/2018/03/22/Clang之旅-添加自定义的attribute/index.html">
 <meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
-<meta property="og:description" content="前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译官方文档中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，">
-<meta property="og:updated_time" content="2018-04-17T02:44:23.998Z">
+<meta property="og:description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribu">
+<meta property="og:updated_time" content="2018-04-18T03:23:04.372Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Clang 之旅—[翻译]添加自定义的 attribute">
-<meta name="twitter:description" content="前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译官方文档中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，">
+<meta name="twitter:description" content="Clang 之旅系列文章：Clang 之旅–使用 Xcode 开发 Clang 插件Clang 之旅–[翻译]添加自定义的 attributeClang 之旅–实现一个自定义检查规范的 Clang 插件
+前言这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribu">
 
 
 
@@ -368,8 +371,8 @@
       
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译<a href="https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute" target="_blank" rel="external">官方文档</a>中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，涉及专有词汇比较多的原因，所以我会偏向意译多一点，试图用更加易懂的表达组织语言，也是加深自己的记忆吧。</p>
-<p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅—[翻译]添加自定义的 attribute</a></p>
+        <p>Clang 之旅系列文章：<br><a href="https://www.jianshu.com/p/e3f46d42643b" target="_blank" rel="external">Clang 之旅–使用 Xcode 开发 Clang 插件</a><br><a href="https://www.jianshu.com/p/d277c42f4907" target="_blank" rel="external">Clang 之旅–[翻译]添加自定义的 attribute</a><br><a href="https://www.jianshu.com/p/c27b77f70616" target="_blank" rel="external">Clang 之旅–实现一个自定义检查规范的 Clang 插件</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>这是 Clang 之旅系列的第二篇，自己想要完成的需求是：在编译阶段检查某个方法的参数与返回值的类型相同，如果类型不一致的话能抛出编译错误的提示。需要接触到 Clang 中关于 attribute 处理的代码，所以这篇先来翻译<a href="https://clang.llvm.org/docs/InternalsManual.html#how-to-add-an-attribute" target="_blank" rel="external">官方文档</a>中添加自定义的 attribute 这一节，不得不说，虽然 Clang 的文档可以说是很标杆了，但是总有一种看了后面忘了前面的感觉，可能是 Clang 比较庞大，涉及专有词汇比较多的原因，所以我会偏向意译多一点，试图用更加易懂的表达组织语言，也是加深自己的记忆吧。</p>
 <h2 id="怎样添加-attribute"><a href="#怎样添加-attribute" class="headerlink" title="怎样添加 attribute"></a>怎样添加 attribute</h2><p>attribute 是一种可以附加到程序结构中的数据形式，允许开发人员传递信息给编译器来实现各种需求。例如，attribute 可以用来改变在程序构造时生成的代码，或者用来提供额外的信息给静态分析。本文档讲解如何添加一个自定义的 attribute 到 Clang 中。现有 attribute 列表的文档可以在<a href="https://clang.llvm.org/docs/AttributeReference.html" target="_blank" rel="external">这里</a>找到。</p>
 <h3 id="attribute-基础知识"><a href="#attribute-基础知识" class="headerlink" title="attribute 基础知识"></a>attribute 基础知识</h3><p>Clang 中的 attribute 涉及到三个阶段：解析 attribute 、从已解析的 attribute 转换成语法树上的 attribute、对 attribute 进行处理。</p>
 <p>attribute 的解析可以采用多种语法形式，例如 GNU、C++ 11 和 Microsoft 形式，还由 attribute 提供的其他信息来确定。最终，解析好的 attribute 用一个 <code>AttributeList</code> 对象来表示。这些解析好的 attribute 会链成一个 attribute 链，加到声明或者定义上。attribtue 的解析是由 Clang 自动完成的，除了那些关键字 attribute。关键字的解析和 <code>AttributeList</code> 对象的生成必须由我们手动完成。</p>
@@ -486,6 +489,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/" rel="prev" title="Clang 之旅--实现一个自定义检查规范的 Clang 插件">
+                Clang 之旅--实现一个自定义检查规范的 Clang 插件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -558,7 +565,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
