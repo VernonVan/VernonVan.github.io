@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="iOS,Swift," />
+  <meta name="keywords" content="iOS," />
 
 
 
@@ -84,19 +84,16 @@
 
 
 
-<meta name="description" content="定义lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。
-Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。示例如下：123456789@prope">
+<meta name="description" content="同时按下 Home 键和电源键，咔嚓一声，就得到了一张手机的截图，这操作想必 iPhone 用户再熟悉不过了。我们作为研发人员，面对的是一个个的 View，那么该怎么用代码对 View 进行截图呢？这篇文章主要讨论的是如何在包括 UIWebView 和 WKWebView 的网页中进行长截图，对应的示例代码在这儿：https://github.com/VernonVan/PPSnapshotKit">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Swift的lazy关键字–延迟加载">
-<meta property="og:url" content="http://yoursite.com/2016/12/28/Swift的lazy关键字–延迟加载/index.html">
+<meta property="og:title" content="iOS 截图的那些事儿">
+<meta property="og:url" content="http://yoursite.com/2018/05/28/iOS截图的那些事儿/index.html">
 <meta property="og:site_name" content="ruanpapa和又吉君写字的地方">
-<meta property="og:description" content="定义lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。
-Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。示例如下：123456789@prope">
-<meta property="og:updated_time" content="2017-03-30T05:42:10.000Z">
+<meta property="og:description" content="同时按下 Home 键和电源键，咔嚓一声，就得到了一张手机的截图，这操作想必 iPhone 用户再熟悉不过了。我们作为研发人员，面对的是一个个的 View，那么该怎么用代码对 View 进行截图呢？这篇文章主要讨论的是如何在包括 UIWebView 和 WKWebView 的网页中进行长截图，对应的示例代码在这儿：https://github.com/VernonVan/PPSnapshotKit">
+<meta property="og:updated_time" content="2018-06-03T06:39:43.952Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Swift的lazy关键字–延迟加载">
-<meta name="twitter:description" content="定义lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。
-Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。示例如下：123456789@prope">
+<meta name="twitter:title" content="iOS 截图的那些事儿">
+<meta name="twitter:description" content="同时按下 Home 键和电源键，咔嚓一声，就得到了一张手机的截图，这操作想必 iPhone 用户再熟悉不过了。我们作为研发人员，面对的是一个个的 View，那么该怎么用代码对 View 进行截图呢？这篇文章主要讨论的是如何在包括 UIWebView 和 WKWebView 的网页中进行长截图，对应的示例代码在这儿：https://github.com/VernonVan/PPSnapshotKit">
 
 
 
@@ -124,13 +121,13 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2016/12/28/Swift的lazy关键字–延迟加载/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/28/iOS截图的那些事儿/"/>
 
 
 
 
 
-  <title> Swift的lazy关键字–延迟加载 | ruanpapa和又吉君写字的地方 </title>
+  <title> iOS 截图的那些事儿 | ruanpapa和又吉君写字的地方 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -253,7 +250,7 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/12/28/Swift的lazy关键字–延迟加载/">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/28/iOS截图的那些事儿/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="ruanpapa & 又吉君">
@@ -277,7 +274,7 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
             
             
               
-                Swift的lazy关键字–延迟加载
+                iOS 截图的那些事儿
               
             
           </h1>
@@ -292,8 +289,8 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-28T16:29:02+08:00">
-                2016-12-28
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-05-28T21:50:57+08:00">
+                2018-05-28
               </time>
             
 
@@ -333,8 +330,8 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016/12/28/Swift的lazy关键字–延迟加载/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/28/Swift的lazy关键字–延迟加载/" itemprop="commentCount"></span>
+                <a href="/2018/05/28/iOS截图的那些事儿/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/05/28/iOS截图的那些事儿/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -344,7 +341,7 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
 
           
           
-             <span id="/2016/12/28/Swift的lazy关键字–延迟加载/" class="leancloud_visitors" data-flag-title="Swift的lazy关键字–延迟加载">
+             <span id="/2018/05/28/iOS截图的那些事儿/" class="leancloud_visitors" data-flag-title="iOS 截图的那些事儿">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -371,27 +368,32 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
       
 
       
-        <h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>lazy属性就是初始值直到第一次使用的时候才执行计算的属性，这对小内存的手机所产生的性能上的优化是相当可观的。<br><strong>注意：lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy。</strong></p>
-<h3 id="Objective-C中的延迟加载"><a href="#Objective-C中的延迟加载" class="headerlink" title="Objective-C中的延迟加载"></a>Objective-C中的延迟加载</h3><p>Objective-C并没有在语法上支持延迟加载，通常是由程序员自己手动实现的。<br>示例如下：<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">@property (nonatomic, strong) <span class="type">NSArray</span> *names;</div><div class="line"></div><div class="line">- (<span class="type">NSArray</span> *)names &#123;</div><div class="line">    <span class="keyword">if</span> (!_names) &#123;</div><div class="line">        _names = [[<span class="type">NSArray</span> alloc] <span class="keyword">init</span>];</div><div class="line">        <span class="type">NSLog</span>(@<span class="string">"只在首次访问输出"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> _names;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>说明：在初始化对象后，_names 是 nil。只有当首次访问 names 属性时 getter 方法会被调用，并检查如果还没有初始化的话，就进行赋值。可以想见，控制台打印的“只在首次访问输出”的确只会输出一次。我们之后再多次访问这个属性的话，因为 _names已经有值，因此将直接返回。<br>分析：getter方法和下划线语法对初学者并不是那么的友好，同时属性以及对应的getter方法空间上隔得比较远，代码逻辑不直观。</p>
-<h3 id="Swift的延迟加载"><a href="#Swift的延迟加载" class="headerlink" title="Swift的延迟加载"></a>Swift的延迟加载</h3><p>Swift中则可以通过<strong>lazy</strong>关键字简单地实现相同功能，比如上述示例代码在Swift中实现的话：<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">lazy</span> <span class="keyword">var</span> names: <span class="type">NSArray</span> = &#123;</div><div class="line">	<span class="keyword">let</span> names = <span class="type">NSArray</span>()</div><div class="line">	<span class="built_in">print</span>(<span class="string">"只在首次访问输出"</span>)</div><div class="line">	<span class="keyword">return</span> names</div><div class="line">&#125;()</div></pre></td></tr></table></figure></p>
-<p>分析：相比起Objective-C中的实现，现在的lazy是在是简单的多了，而且更加的直观。除了上述直接在属性后面定义闭包调用的方法以外，还可以使用实例方法（func）和类方法（class func）来为lazy属性初始化添加必要的逻辑。</p>
-<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>延迟加载主要有以下两个使用的场景：</p>
-<ol>
-<li>属性的初始值依赖于其他的属性值，只有其他的属性值有值之后才能得出该属性的值。</li>
-<li>属性的初始值需要大量的计算。</li>
-</ol>
-<h3 id="高级用法"><a href="#高级用法" class="headerlink" title="高级用法"></a>高级用法</h3><p>在Swift标准库中还有一组lazy方法，可以配合map、filter这类接受闭包并进行运行的方法一起，让整个行为变成延时进行的。以下是map函数的用法（示例取自喵神的<a href="http://swifter.tips/lazy/" target="_blank" rel="external">Swifter</a>）:<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> data = <span class="number">1</span>...<span class="number">3</span></div><div class="line"><span class="keyword">let</span> result = data.<span class="built_in">lazy</span>.<span class="built_in">map</span> &#123;</div><div class="line">    (i: <span class="type">Int</span>) -&gt; <span class="type">Int</span> <span class="keyword">in</span></div><div class="line">    <span class="built_in">print</span>(<span class="string">"正在处理 <span class="subst">\(i)</span>"</span>)</div><div class="line">    <span class="keyword">return</span> i * <span class="number">2</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"准备访问结果"</span>)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> result &#123;</div><div class="line">    <span class="built_in">print</span>(<span class="string">"操作后结果为 <span class="subst">\(i)</span>"</span>)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="built_in">print</span>(<span class="string">"操作完毕"</span>)</div></pre></td></tr></table></figure></p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 准备访问结果</span></div><div class="line"><span class="comment">// 正在处理 1</span></div><div class="line"><span class="comment">// 操作后结果为 2</span></div><div class="line"><span class="comment">// 正在处理 2</span></div><div class="line"><span class="comment">// 操作后结果为 4</span></div><div class="line"><span class="comment">// 正在处理 3</span></div><div class="line"><span class="comment">// 操作后结果为 6</span></div><div class="line"><span class="comment">// 操作完毕</span></div></pre></td></tr></table></figure>
+        <p>同时按下 Home 键和电源键，咔嚓一声，就得到了一张手机的截图，这操作想必 iPhone 用户再熟悉不过了。我们作为研发人员，面对的是一个个的 View，那么该怎么用代码对 View 进行截图呢？<br>这篇文章主要讨论的是如何在包括 UIWebView 和 WKWebView 的网页中进行长截图，对应的示例代码在这儿：<a href="https://github.com/VernonVan/PPSnapshotKit。" target="_blank" rel="external">https://github.com/VernonVan/PPSnapshotKit。</a></p>
+<h3 id="UIWebView-截图"><a href="#UIWebView-截图" class="headerlink" title="UIWebView 截图"></a>UIWebView 截图</h3><p>对 UIWebView 截图比较简单，<code>renderInContext</code> 这个方法相信大家都不会陌生，这个方法是 CALayer 的一个实例方法，可以用来对大部分 View 进行截图。我们知道，UIWebView 承载内容的其实是作为其子 View 的 UIScrollView，所以对 UIWebView 截图应该对其 scrollView 进行截图。具体的截图方法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">- (void)snapshotForScrollView:(UIScrollView *)scrollView</div><div class="line">&#123;</div><div class="line">    // 1. 记录当前 scrollView 的偏移和位置</div><div class="line">	CGPoint currentOffset = scrollView.contentOffset;</div><div class="line">    CGRect currentFrame = scrollView.frame;</div><div class="line"></div><div class="line">    scrollView.contentOffset = CGPointZero;</div><div class="line">    // 2. 将 scrollView 展开为其实际内容的大小</div><div class="line">    scrollView.frame = CGRectMake(0, 0, scrollView.contentSize.width, scrollView.contentSize.height);</div><div class="line"></div><div class="line">    // 3. 第三个参数设置为 0 表示设置为屏幕的默认缩放因子</div><div class="line">    UIGraphicsBeginImageContextWithOptions(scrollView.contentSize, YES, 0);</div><div class="line">    [scrollView.layer renderInContext:UIGraphicsGetCurrentContext()];</div><div class="line">    UIImage *snapshotImage = UIGraphicsGetImageFromCurrentImageContext();</div><div class="line">    UIGraphicsEndImageContext();</div><div class="line">	</div><div class="line">    // 4. 重新设置 scrollView 的偏移和位置，还原现场</div><div class="line">    scrollView.contentOffset = currentOffset;</div><div class="line">    scrollView.frame = currentFrame;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="WKWebView-截图"><a href="#WKWebView-截图" class="headerlink" title="WKWebView 截图"></a>WKWebView 截图</h3><p> 虽然 WKWebView 里也有 scrollView，但是直接对这个 scrollView 截图得到的是一片空白的，具体原因不明。一番 Google 之后可以看到好些人提到 <code>drawViewHierarchyInRect</code> 方法， 可以看到这个方法是 iOS 7.0 开始引入的。官方文档中描述为：</p>
 <blockquote>
-<p>对于那些不需要完全运行，可能提前退出的情况，使用 lazy 来进行性能优化效果会非常有效。</p>
+<p>Renders a snapshot of the complete view hierarchy as visible onscreen into the current context.</p>
 </blockquote>
-<p>参考链接：</p>
+<p>注意其中的 <strong>visible onscreen</strong>，也就是将屏幕中可见部分渲染到上下文中，这也解释了为什么对 WKWebView 中的 scrollView 展开为实际内容大小，再调用 <code>drawViewHierarchyInRect</code> 方法总是得到一张不完整的截图（只有屏幕可见区域被正确截到，其他区域为空白）。</p>
+<p>不过，这样倒是给我们提供了一个思路，可以将 WKWebView 按屏幕高度裁成 n 页，然后将 WKWebView 一页一页的往上推，每推一页就调用一次 <code>drawViewHierarchyInRect</code> 将当前屏幕的截图渲染到上下文中，最后调用 <code>UIGraphicsGetImageFromCurrentImageContext</code> 从上下文中获取的图片即为完整截图。</p>
+<p>核心代码如下（代码为演示用途，完整代码请从<a href="https://github.com/VernonVan/PPSnapshotKit" target="_blank" rel="external">这里</a>查看)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line">- (void)snapshotForWKWebView:(WKWebView *)webView</div><div class="line">&#123;</div><div class="line">    // 1</div><div class="line">    UIView *snapshotView = [webView snapshotViewAfterScreenUpdates:YES];</div><div class="line">    [webView.superview addSubview:snapshotView];</div><div class="line"></div><div class="line">    // 2</div><div class="line">    CGPoint currentOffset = webView.scrollView.contentOffset;</div><div class="line">    ...</div><div class="line"></div><div class="line">    // 3</div><div class="line">    UIView *containerView = [[UIView alloc] initWithFrame:webView.bounds];</div><div class="line">    [webView removeFromSuperview];</div><div class="line">    [containerView addSubview:webView];</div><div class="line"></div><div class="line">    </div><div class="line">    // 4</div><div class="line">    CGSize totalSize = webView.scrollView.contentSize;</div><div class="line">    NSInteger page = ceil(totalSize.height / containerView.bounds.size.height);</div><div class="line"></div><div class="line">    webView.scrollView.contentOffset = CGPointZero;</div><div class="line">    webView.frame = CGRectMake(0, 0, containerView.bounds.size.width, webView.scrollView.contentSize.height);</div><div class="line"></div><div class="line">    UIGraphicsBeginImageContextWithOptions(totalSize, YES, UIScreen.mainScreen.scale);</div><div class="line">    [self drawContentPage:0 maxIndex:page completion:^&#123;</div><div class="line">        UIImage *snapshotImage = UIGraphicsGetImageFromCurrentImageContext();</div><div class="line">        UIGraphicsEndImageContext();</div><div class="line"></div><div class="line">        // 8</div><div class="line">        [webView removeFromSuperview];</div><div class="line">        ...</div><div class="line">    &#125;];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (void)drawContentPage(NSInteger)index maxIndex:(NSInteger)maxIndex completion:(dispatch_block_t)completion</div><div class="line">&#123;</div><div class="line">    // 5</div><div class="line">    CGRect splitFrame = CGRectMake(0, index * CGRectGetHeight(containerView.bounds), containerView.bounds.size.width, containerView.frame.size.height);</div><div class="line">    CGRect myFrame = webView.frame;</div><div class="line">    myFrame.origin.y = -(index * containerView.frame.size.height);</div><div class="line">    webView.frame = myFrame;</div><div class="line"></div><div class="line">    // 6</div><div class="line">    [targetView drawViewHierarchyInRect:splitFrame afterScreenUpdates:YES];</div><div class="line"></div><div class="line">    // 7</div><div class="line">    if (index &lt; maxIndex) &#123;</div><div class="line">        [self drawContentPage:index + 1 maxIndex:maxIndex completion:completion];</div><div class="line">    &#125; else &#123;</div><div class="line">        completion();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码注意项如下（对应代码注释中的序号）：</p>
 <ol>
-<li>喵神：<a href="http://swifter.tips/lazy/" target="_blank" rel="external">LAZY 修饰符和 LAZY 方法</a></li>
-<li>Swiftist：<a href="http://swiftist.org/topics/129" target="_blank" rel="external">Swift中的延迟加载</a></li>
-<li><a href="https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Properties.html" target="_blank" rel="external">Apple developer</a></li>
+<li>为了截图时对 frame 进行操作不会出现闪屏等现象，我们需要盖一个“假”的 webView 到现在的位置上，并将真正的 webView “摘下来”。调用 <code>snapshotViewAfterScreenUpdates</code> 即可得到这样一个“假”的 webView</li>
+<li>保存真正的 webView 的偏移、位置等信息，以便截图完成之后“还原现场”</li>
+<li>用一个新的视图承载“真正的” webView，这个视图也是绘图所用到的上下文</li>
+<li>将 webView 按照实际内容高度和屏幕高度分成 page 页</li>
+<li>得到每一页的实际位置，并将 webView 往上推到该位置</li>
+<li>调用 <code>drawViewHierarchyInRect</code> 将当前位置的 webView 渲染到上下文中</li>
+<li>如果还未到达最后一页，则递归调用 <code>drawViewHierarchyInRect</code> 方法进行渲染；如果已经渲染完了全部页，则回调通知截图完成</li>
+<li>调用 <code>UIGraphicsGetImageFromCurrentImageContext</code> 方法从当前上下文中获取到完整截图，将第 2 步中保存的信息重新赋予到 webView 上，“还原现场”</li>
 </ol>
+<p>注意：我们的截图方法中有对 webView 的 frame 进行操作，如果其他地方如果有对 frame 进行操作的话，是会影响我们截图的。所以在截图时应该禁用掉其他地方对 frame 的改变，就像这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- (void)layoutWebView</div><div class="line">&#123;</div><div class="line">    if (!_isCapturing) &#123;</div><div class="line">        self.wkWebView.frame = [self frameForWebView];</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>当前 WKWebView 的使用越来越广泛了，我随意查看了内存占用：打开同样一个网页，UIWebView 直接占用了 160 MB 内存，而 WKWebView 只占用了 40 MB 内存，差距是相当明显的。如果我们的业务中用到了 WKWebView 且有截图需求的话，那么还是得老老实实完成的。</p>
+<p>最后，本文对应的代码在这儿：<a href="https://github.com/VernonVan/PPSnapshotKit" target="_blank" rel="external">https://github.com/VernonVan/PPSnapshotKit</a></p>
 
       
     </div>
@@ -417,8 +419,6 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
           
             <a href="/tags/iOS/" rel="tag"># iOS</a>
           
-            <a href="/tags/Swift/" rel="tag"># Swift</a>
-          
         </div>
       
 
@@ -426,15 +426,15 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2018/04/17/Clang之旅-实现一个自定义检查规范的Clang插件/" rel="next" title="Clang 之旅--实现一个自定义检查规范的 Clang 插件">
+                <i class="fa fa-chevron-left"></i> Clang 之旅--实现一个自定义检查规范的 Clang 插件
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/03/30/ruanpapa和又吉君的日常之零/" rel="prev" title="ruanpapa和又吉君的日常之零">
-                ruanpapa和又吉君的日常之零 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -460,8 +460,8 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/12/28/Swift的lazy关键字–延迟加载/"
-           data-title="Swift的lazy关键字–延迟加载" data-url="http://yoursite.com/2016/12/28/Swift的lazy关键字–延迟加载/">
+      <div class="ds-thread" data-thread-key="2018/05/28/iOS截图的那些事儿/"
+           data-title="iOS 截图的那些事儿" data-url="http://yoursite.com/2018/05/28/iOS截图的那些事儿/">
       </div>
     
   </div>
@@ -572,7 +572,7 @@ Objective-C中的延迟加载Objective-C并没有在语法上支持延迟加载�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Objective-C中的延迟加载"><span class="nav-number">2.</span> <span class="nav-text">Objective-C中的延迟加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Swift的延迟加载"><span class="nav-number">3.</span> <span class="nav-text">Swift的延迟加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用场景"><span class="nav-number">4.</span> <span class="nav-text">使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级用法"><span class="nav-number">5.</span> <span class="nav-text">高级用法</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIWebView-截图"><span class="nav-number">1.</span> <span class="nav-text">UIWebView 截图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WKWebView-截图"><span class="nav-number">2.</span> <span class="nav-text">WKWebView 截图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结语"><span class="nav-number">3.</span> <span class="nav-text">结语</span></a></li></ol></div>
             
 
           </div>
