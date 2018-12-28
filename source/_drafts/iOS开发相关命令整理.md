@@ -49,3 +49,13 @@ categories:
 4. 查看上一个命令是否执行成功，返回值为 0 则表示执行成功：
 
    ```echo $? ```
+
+
+
+5. 符号化崩溃日志时需要准备 XXX.symbolicatecrash、 xxx.app.dSYM 和 xxx.app，且需要保证这三个文件是“配套的”（也即是说三者的 UUID 是相同的）
+
+   查看 xxx.app 的 UUID：`dwarfdump --uuid xxx.app/xxx`
+
+   查看 xxx.app.dSYM 的 UUID：`dwarfdump --uuid xxx.app.dSYM`
+
+   
